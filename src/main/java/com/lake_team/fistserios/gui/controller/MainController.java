@@ -1,4 +1,4 @@
-package com.lake_team.fistserios.controller;/*
+package com.lake_team.fistserios.gui.controller;/*
   @author Bogdan
   @project fistserios
   @class MainController
