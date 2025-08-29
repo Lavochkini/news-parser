@@ -6,7 +6,7 @@ package com.lake_team.fistserios.model;/*
   @since 27.08.2025 - 18.52
 */
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
