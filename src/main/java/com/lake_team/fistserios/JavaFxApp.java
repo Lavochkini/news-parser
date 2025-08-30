@@ -31,7 +31,7 @@ public class JavaFxApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // Завантажуємо FXML через Spring
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
 
         Scene scene = new Scene(fxmlLoader.load(), 600, 400);
