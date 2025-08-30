@@ -4,12 +4,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class RegistrationController {
 
@@ -28,9 +34,28 @@ public class RegistrationController {
         String password = passwordField.getText();
         String email = emailField.getText();
 
-        System.out.println("Реєстрація: " + username + " / " + password + " / " + email);
+        try {
+            // Формуємо JSON
+            String jsonBody = String.format("{\"username\":\"%s\", \"email\":\"%s\", \"password\":\"%s\"}", username ,email, password);
 
-        // TODO: тут буде логіка збереження користувача в базу
+            // Створюємо HTTP клієнт
+            HttpClient client = HttpClient.newHttpClient();
+
+            // Готуємо запит
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8080/auth/register"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Response code: " + response.statusCode());
+            System.out.println("Response body: " + response.body());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
