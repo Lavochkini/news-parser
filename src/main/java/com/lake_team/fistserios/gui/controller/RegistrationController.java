@@ -39,8 +39,17 @@ public class RegistrationController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) usernameField.getScene().getWindow(); // поточне вікно
-            stage.setScene(new Scene(root));
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+
+            double width = stage.getScene().getWidth();
+            double height = stage.getScene().getHeight();
+
+            boolean maximized = stage.isMaximized();
+
+            Scene scene = new Scene(root, width, height);
+            stage.setScene(scene);
+
+            stage.setMaximized(maximized);
             stage.show();
 
         } catch (IOException e) {

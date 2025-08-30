@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import javafx.scene.Parent;
 
 public class JavaFxApp extends Application {
     private static String[] savedArgs;
@@ -34,8 +35,10 @@ public class JavaFxApp extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
 
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root, 900, 650);  // трохи більше за дефолт
         stage.setScene(scene);
+
         stage.setTitle("News Parser");
         stage.show();
     }
