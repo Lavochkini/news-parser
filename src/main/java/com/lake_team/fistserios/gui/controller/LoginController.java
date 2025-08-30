@@ -1,9 +1,15 @@
 package com.lake_team.fistserios.gui.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.springframework.stereotype.Component;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.io.IOException;
+
 
 
 @Component
@@ -28,13 +34,23 @@ public class LoginController {
 
     @FXML
     private void openRegistration() {
-        System.out.println("Відкрити реєстрацію");
-        // TODO: тут відкриватимемо нове вікно з registration.fxml
-    }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/registration.fxml"));
+            Parent root = loader.load();
 
+            Stage stage = (Stage) usernameField.getScene().getWindow(); // поточне вікно
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
     @FXML
     private void openGuest() {
-        System.out.println("Увійти як гість");
-        // TODO: відкриття гостьового інтерфейсу
+        System.out.println("Log in as a guest");
     }
+
 }
+
+
