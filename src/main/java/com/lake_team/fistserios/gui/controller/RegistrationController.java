@@ -58,9 +58,19 @@ public class RegistrationController {
     }
 
     @FXML
-    private void openGuest(MouseEvent event) {
-        System.out.println("Гість натиснув!");
+    private void openGuest() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) usernameField.getScene().getWindow(); // отримуємо поточне вікно
+            stage.setScene(new Scene(root, 900, 600)); // задаємо розмір
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
 
     @FXML
