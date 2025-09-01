@@ -10,7 +10,7 @@
             style="-fx-background-color: #1e1e1e;">
 
     <center>
-        <SplitPane dividerPositions="0.01">
+        <SplitPane dividerPositions="0.2">
             <!-- Ліва панель -->
             <items>
                 <VBox style="-fx-background-color: #303A4C;">

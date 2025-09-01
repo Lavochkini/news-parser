@@ -63,8 +63,16 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) usernameField.getScene().getWindow(); // отримуємо поточне вікно
-            stage.setScene(new Scene(root, 900, 600)); // задаємо розмір
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+
+            double width = stage.getScene().getWidth();
+            double height = stage.getScene().getHeight();
+
+            boolean maximized = stage.isMaximized();
+            Scene scene = new Scene(root, width, height);
+            stage.setScene(scene);
+
+            stage.setMaximized(maximized);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

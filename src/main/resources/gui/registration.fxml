@@ -21,7 +21,9 @@
 
     <TextField fx:id="usernameField" promptText="User Name" prefWidth="400" maxWidth="400" VBox.vgrow="NEVER"
            style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
-
+        <VBox.margin>
+            <Insets top="0" right="0" bottom="20" left="0"/>
+        </VBox.margin>
     </TextField>
 
     <PasswordField fx:id="passwortField" promptText="Passwort" prefWidth="400" maxWidth="400" VBox.vgrow="NEVER"

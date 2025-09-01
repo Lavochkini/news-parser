@@ -64,7 +64,14 @@ public class RegistrationController {
             Parent root = loader.load();
 
             Stage stage = (Stage) usernameField.getScene().getWindow(); // отримуємо поточне вікно
-            stage.setScene(new Scene(root, 900, 600)); // задаємо розмір
+            double width = stage.getScene().getWidth();
+            double height = stage.getScene().getHeight();
+
+            boolean maximized = stage.isMaximized();
+            Scene scene = new Scene(root, width, height);
+            stage.setScene(scene);
+
+            stage.setMaximized(maximized);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
