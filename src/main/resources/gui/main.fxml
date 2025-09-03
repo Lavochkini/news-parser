@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.lake_team.fistserios.gui.controller.MainController"
+            style="-fx-background-color: #1e1e1e;">
+
+    <center>
+        <SplitPane dividerPositions="0.2">
+            <!-- Ліва панель -->
+            <items>
+                <VBox style="-fx-background-color: #303A4C;">
+                    <TextField fx:id="topicsearchField" promptText="Search" VBox.vgrow="SOMETIMES"
+                               style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
+                        <VBox.margin>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </VBox.margin>
+                    </TextField>
+                </VBox>
+
+                <!-- Права панель -->
+                <VBox style="-fx-background-color: #1B2029;">
+
+                    <TextField fx:id="mainsearchField" promptText="Search" VBox.vgrow="SOMETIMES"
+                               style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
+                        <VBox.margin>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </VBox.margin>
+                    </TextField>
+                </VBox>
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>
