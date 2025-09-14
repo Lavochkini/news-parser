@@ -16,13 +16,16 @@
                     style="-fx-font-size: 24; -fx-text-fill: white; -fx-font-weight: bold;" text="Login" />
 
 
-    <TextField fx:id="usernameField" promptText="User Name" prefWidth="400" maxWidth="400" VBox.vgrow="NEVER"
+    <TextField fx:id="emailField" promptText="E-mail" prefWidth="400" maxWidth="400" VBox.vgrow="NEVER"
                     style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
     <VBox.margin>
         <Insets top="0" right="0" bottom="20" left="0"/>
     </VBox.margin>
     </TextField>
 
+    <Label fx:id="emailErrorLabel"
+           text=""
+           style="-fx-font-size: 12; -fx-text-fill: red; -fx-font-weight: bold;" />
 
 
     <PasswordField fx:id="passwordField" promptText="Password" prefWidth="400" maxWidth="400" VBox.vgrow="NEVER"
@@ -31,6 +34,10 @@
         <Insets top="0" right="0" bottom="20" left="0"/>
     </VBox.margin>
     </PasswordField>
+
+    <Label fx:id="passwordErrorLabel"
+           text=""
+           style="-fx-font-size: 12; -fx-text-fill: red; -fx-font-weight: bold;" />
 
 
     <Button onAction="#handleLogin"

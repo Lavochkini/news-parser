@@ -29,10 +29,31 @@ public class RegistrationController {
     private TextField emailField;
 
     @FXML
+    private TextField userNameErrorLabel;
+
+    @FXML
+    private TextField passwordErrorLabel;
+
+    @FXML
+    private TextField emailErrorLabel;
+
+    @FXML
     private void handleRegister() {
         String username = usernameField.getText();
         String password = passwordField.getText();
         String email = emailField.getText();
+
+        boolean hasError = false;
+
+        if (email == null || email.isEmpty()) {
+            emailErrorLabel.setText("Write your E-mail");
+            hasError = true;
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            emailErrorLabel.setText("Incorrect E-mail format");
+            hasError = true;
+        } else {
+            emailErrorLabel.setText("");
+        }
 
         try {
             // Формуємо JSON
