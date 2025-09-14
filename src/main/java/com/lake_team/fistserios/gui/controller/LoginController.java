@@ -15,6 +15,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.scene.control.Label;
+
+
 import javafx.scene.control.Alert;
 import com.lake_team.fistserios.controller.AuthController;
 
@@ -24,59 +29,93 @@ import com.lake_team.fistserios.controller.AuthController;
 public class LoginController {
 
     @FXML
-    private TextField usernameField;
+    private TextField emailField;
+    ;
 
     @FXML
     private PasswordField passwordField;
 
     @FXML
+    private Label emailErrorLabel;
+
+    @FXML
+    private Label passwordErrorLabel;
+
+
+
+    @FXML
     private void handleLogin() {
-        String email = usernameField.getText();
+        String email = emailField.getText();
         String password = passwordField.getText();
 
-        try {
-            // Формуємо JSON
-            String jsonBody = String.format("{\"email\":\"%s\", \"password\":\"%s\"}", email, password);
+        boolean hasError = false;
 
-            // Створюємо HTTP клієнт
+        // --- Email validation ---
+        if (email == null || email.isEmpty()) {
+            emailErrorLabel.setText("Write your E-mail");
+            hasError = true;
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            emailErrorLabel.setText("Incorrect E-mail format");
+            hasError = true;
+        } else {
+            emailErrorLabel.setText("");
+        }
+
+        // --- Password validation ---
+        if (password == null || password.isEmpty()) {
+            passwordErrorLabel.setText("Password is required");
+            hasError = true;
+        } else {
+            passwordErrorLabel.setText("");
+        }
+
+        if (hasError) {
+            return; // stop login if validation fails
+        }
+
+        try {
+            // --- Make request to backend ---
             HttpClient client = HttpClient.newHttpClient();
 
-            // Готуємо запит
+            String jsonBody = String.format(
+                    "{\"email\":\"%s\", \"password\":\"%s\"}", email, password
+            );
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/auth/login")) // твій бекенд
+                    .uri(URI.create("http://localhost:8080/auth/login"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
-            // Відправляємо
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // Виводимо результат
-            System.out.println("Response code: " + response.statusCode());
-            System.out.println("Response body: " + response.body());
-
-
+            // --- Check login result ---
             if (response.statusCode() == 200) {
-                JSONObject json = new JSONObject(response.body());
-                String username = json.getString("username");
+                // Login successful → open main page
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+                Parent root = loader.load();
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Успішний вхід");
-                alert.setHeaderText(null);
-                alert.setContentText("Ви успішно увійшли в систему як " + username);
-                alert.showAndWait();
+                Stage stage = (Stage) emailField.getScene().getWindow();
+
+                double width = stage.getScene().getWidth();
+                double height = stage.getScene().getHeight();
+                boolean maximized = stage.isMaximized();
+
+                Scene scene = new Scene(root, width, height);
+                stage.setScene(scene);
+                stage.setMaximized(maximized);
+                stage.show();
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Помилка входу");
-                alert.setHeaderText(null);
-                alert.setContentText("Невірний email або пароль");
-                alert.showAndWait();
+                // Instead of popup → inline error
+                passwordErrorLabel.setText("Invalid email or password");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+            passwordErrorLabel.setText("Server error. Try again later.");
         }
     }
+
+
 
     @FXML
     private void openRegistration() {
@@ -84,7 +123,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/registration.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) usernameField.getScene().getWindow(); // поточне вікно
+            Stage stage = (Stage) emailField.getScene().getWindow(); // поточне вікно
 
             double width = stage.getScene().getWidth();
             double height = stage.getScene().getHeight();
@@ -107,7 +146,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) usernameField.getScene().getWindow();
+            Stage stage = (Stage) emailField.getScene().getWindow();
 
             double width = stage.getScene().getWidth();
             double height = stage.getScene().getHeight();
