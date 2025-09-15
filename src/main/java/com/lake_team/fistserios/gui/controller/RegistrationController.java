@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -29,13 +30,14 @@ public class RegistrationController {
     private TextField emailField;
 
     @FXML
-    private TextField userNameErrorLabel;
+    private Label userNameErrorLabel;
 
     @FXML
-    private TextField passwordErrorLabel;
+    private Label emailErrorLabel;
 
     @FXML
-    private TextField emailErrorLabel;
+    private Label passwordErrorLabel;
+
 
     @FXML
     private void handleRegister() {
@@ -45,6 +47,16 @@ public class RegistrationController {
 
         boolean hasError = false;
 
+        if (username == null || username.isEmpty()) {
+            userNameErrorLabel.setText("Username is required");
+            hasError = true;
+        } else if (username.length() < 3) {
+            userNameErrorLabel.setText("Username must be at least 3 characters");
+            hasError = true;
+        } else {
+            userNameErrorLabel.setText(""); // no error
+        }
+
         if (email == null || email.isEmpty()) {
             emailErrorLabel.setText("Write your E-mail");
             hasError = true;
@@ -53,6 +65,20 @@ public class RegistrationController {
             hasError = true;
         } else {
             emailErrorLabel.setText("");
+        }
+
+        if (password == null || password.isEmpty()) {
+            passwordErrorLabel.setText("Password is required");
+            hasError = true;
+        }else if (password.length() < 8) {
+            passwordErrorLabel.setText("Passwort must be at least 8 characters");
+            hasError = true;
+        }else {
+            passwordErrorLabel.setText("");
+        }
+
+        if (hasError) {
+            return; // stop registration if validation fails
         }
 
         try {
