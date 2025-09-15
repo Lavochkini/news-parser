@@ -14,21 +14,21 @@
     <Label style="-fx-font-size:25; -fx-text-fill: white; -fx-font-weight: bold" text="Registration"/>
 
     <!-- Username -->
-    <VBox spacing="5">
+    <VBox alignment="CENTER">
         <TextField fx:id="usernameField" promptText="User Name" prefWidth="400" maxWidth="400"
                    style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;"/>
         <Label fx:id="userNameErrorLabel" text="" textFill="red" style="-fx-font-size: 12;"/>
     </VBox>
 
     <!-- Password -->
-    <VBox spacing="5">
+    <VBox alignment="CENTER">
         <PasswordField fx:id="passwordField" promptText="Password" prefWidth="400" maxWidth="400"
                        style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;"/>
         <Label fx:id="passwordErrorLabel" text="" textFill="red" style="-fx-font-size: 12;"/>
     </VBox>
 
     <!-- Email -->
-    <VBox spacing="5">
+    <VBox alignment="CENTER">
         <TextField fx:id="emailField" promptText="E-Mail" prefWidth="400" maxWidth="400"
                    style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;"/>
         <Label fx:id="emailErrorLabel" text="" textFill="red" style="-fx-font-size: 12;"/>
