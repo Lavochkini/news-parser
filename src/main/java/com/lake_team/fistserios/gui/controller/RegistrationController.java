@@ -8,6 +8,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
 import org.json.JSONObject;
@@ -37,6 +39,21 @@ public class RegistrationController {
 
     @FXML
     private Label passwordErrorLabel;
+
+    @FXML
+    private ImageView imageView;
+
+    @FXML
+    private ImageView imageViewRight;
+
+    @FXML
+    public void initialize() {
+        Image leftImage = new Image(getClass().getResource("/gui/images/left_art.png").toExternalForm());
+        imageView.setImage(leftImage);
+
+        Image rightImage = new Image(getClass().getResource("/gui/images/right_art.png").toExternalForm());
+        imageViewRight.setImage(rightImage);
+    }
 
 
     @FXML
