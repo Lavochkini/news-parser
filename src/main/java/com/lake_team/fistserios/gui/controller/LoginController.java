@@ -1,11 +1,9 @@
 package com.lake_team.fistserios.gui.controller;
 
-import com.lake_team.fistserios.model.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -15,18 +13,20 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
+
 import javafx.scene.control.Label;
-
-
-import javafx.scene.control.Alert;
-import com.lake_team.fistserios.controller.AuthController;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 
 
 @Component
 
 public class LoginController {
+    @FXML
+    private ImageView imageView;
+
+    @FXML
+    private ImageView imageViewRight;
 
     @FXML
     private TextField emailField;
@@ -40,6 +40,15 @@ public class LoginController {
 
     @FXML
     private Label passwordErrorLabel;
+
+    @FXML
+    public void initialize() {
+        Image leftImage = new Image(getClass().getResource("/gui/images/left_art.png").toExternalForm());
+        imageView.setImage(leftImage);
+
+        Image rightImage = new Image(getClass().getResource("/gui/images/right_art.png").toExternalForm());
+        imageViewRight.setImage(rightImage);
+    }
 
 
 
