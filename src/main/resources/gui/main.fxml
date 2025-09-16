@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.SplitPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -11,7 +15,7 @@
 
     <center>
         <SplitPane dividerPositions="0.2">
-            <!-- Ліва панель -->
+
             <items>
                 <VBox style="-fx-background-color: #303A4C;">
                     <TextField fx:id="topicsearchField" promptText="Search" VBox.vgrow="SOMETIMES"
@@ -22,7 +26,7 @@
                     </TextField>
                 </VBox>
 
-                <!-- Права панель -->
+
                 <VBox style="-fx-background-color: #1B2029;">
 
                     <TextField fx:id="mainsearchField" promptText="Search" VBox.vgrow="SOMETIMES"
@@ -31,6 +35,11 @@
                             <Insets top="10" right="10" bottom="10" left="10"/>
                         </VBox.margin>
                     </TextField>
+
+                    <HBox alignment="CENTER" spacing="40">
+                        <Label onMouseClicked="#openLogin" text="Login" textFill="skyblue"  />
+                        <Label onMouseClicked="#openRegistration" text="Registration" textFill="skyblue" />
+                    </HBox>
                 </VBox>
             </items>
         </SplitPane>
