@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -15,8 +16,9 @@
 
     <center>
         <SplitPane dividerPositions="0.2">
-
             <items>
+
+                <!-- Бічне меню зліва -->
                 <VBox style="-fx-background-color: #303A4C;">
                     <TextField fx:id="topicsearchField" promptText="Search" VBox.vgrow="SOMETIMES"
                                style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
@@ -26,22 +28,49 @@
                     </TextField>
                 </VBox>
 
+                <!-- Основна частина зліва + settings справа -->
+                <HBox style="-fx-background-color: #1B2029;" spacing="0">
 
-                <VBox style="-fx-background-color: #1B2029;">
+                    <!-- Основний контент -->
+                    <VBox fx:id="leftContent" style="-fx-background-color: #1B2029;" HBox.hgrow="ALWAYS" spacing="10">
+                        <HBox spacing="10">
+                            <TextField fx:id="mainsearchField" promptText="Search" HBox.hgrow="ALWAYS"
+                                       style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
+                                <HBox.margin>
+                                    <Insets top="10" right="-10" bottom="10" left="10"/>
+                                </HBox.margin>
+                            </TextField>
 
-                    <TextField fx:id="mainsearchField" promptText="Search" VBox.vgrow="SOMETIMES"
-                               style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
-                        <VBox.margin>
-                            <Insets top="10" right="10" bottom="10" left="10"/>
-                        </VBox.margin>
-                    </TextField>
+                            <Button fx:id="settingsButton"
+                                    onAction="#toggleSettingsMenu"
+                                    text="⚙"
+                                    style="-fx-background-color: #1B2029; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 25px;">
+                            </Button>
+                        </HBox>
 
-                    <HBox alignment="CENTER" spacing="40">
-                        <Label onMouseClicked="#openLogin" text="Login" textFill="skyblue"  />
-                        <Label onMouseClicked="#openRegistration" text="Registration" textFill="skyblue" />
-                    </HBox>
-                </VBox>
+                        <HBox alignment="CENTER" spacing="40">
+                            <Label onMouseClicked="#openLogin" text="Login" textFill="skyblue"/>
+                            <Label onMouseClicked="#openRegistration" text="Registration" textFill="skyblue"/>
+                        </HBox>
+
+                        
+                    </VBox>
+
+                    <!-- Панель справа -->
+                    <VBox fx:id="rightVBox"
+                          style="-fx-background-color: #2b2b2b; -fx-padding: 20; -fx-border-color: gray; -fx-border-width: 0 0 0 2;"
+                          prefWidth="300"
+                          maxWidth="300"
+                          minWidth="300"
+                          visible="false"
+                          managed="false"
+                    >
+                        <Label text="Settings" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    </VBox>
+                </HBox>
+
             </items>
         </SplitPane>
     </center>
+
 </BorderPane>
