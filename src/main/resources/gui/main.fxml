@@ -52,6 +52,8 @@
                             <Label onMouseClicked="#openLogin" text="Login" textFill="skyblue"/>
                             <Label onMouseClicked="#openRegistration" text="Registration" textFill="skyblue"/>
                         </HBox>
+
+                        
                     </VBox>
 
                     <!-- Панель справа -->
