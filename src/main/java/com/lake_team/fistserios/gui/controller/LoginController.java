@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 
-
 @Component
 
 public class LoginController {
@@ -41,6 +40,7 @@ public class LoginController {
     @FXML
     private Label passwordErrorLabel;
 
+
     @FXML
     public void initialize() {
         Image leftImage = new Image(getClass().getResource("/gui/images/left_art.png").toExternalForm());
@@ -49,8 +49,6 @@ public class LoginController {
         Image rightImage = new Image(getClass().getResource("/gui/images/right_art.png").toExternalForm());
         imageViewRight.setImage(rightImage);
     }
-
-
 
     @FXML
     private void handleLogin() {
@@ -124,8 +122,6 @@ public class LoginController {
         }
     }
 
-
-
     @FXML
     private void openRegistration() {
         try {
@@ -149,6 +145,7 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void openGuest() {
         try {
