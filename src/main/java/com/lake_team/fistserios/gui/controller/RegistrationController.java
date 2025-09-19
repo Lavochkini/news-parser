@@ -1,5 +1,7 @@
 package com.lake_team.fistserios.gui.controller;
 
+import com.lake_team.fistserios.util.StageUtil;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -122,56 +124,23 @@ public class RegistrationController {
         }
     }
 
+
     @FXML
-    private void openLogin() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) usernameField.getScene().getWindow();
-
-            double width = stage.getScene().getWidth();
-            double height = stage.getScene().getHeight();
-
-            boolean maximized = stage.isMaximized();
-
-            Scene scene = new Scene(root, width, height);
-            stage.setScene(scene);
-
-            stage.setMaximized(maximized);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void openLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        Scene scene = new Scene(root);
+        StageUtil.switchScene(stage, scene);
     }
 
     @FXML
-    private void openGuest() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) usernameField.getScene().getWindow(); // отримуємо поточне вікно
-            double width = stage.getScene().getWidth();
-            double height = stage.getScene().getHeight();
-
-            boolean maximized = stage.isMaximized();
-            Scene scene = new Scene(root, width, height);
-            stage.setScene(scene);
-
-            stage.setMaximized(maximized);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    @FXML
-    private void backToLogin() {
-        System.out.println("Back to login clicked!");
+    private void openGuest() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        Scene scene = new Scene(root);
+        StageUtil.switchScene(stage, scene);
     }
 }
 
