@@ -2,3 +2,15 @@
 org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://kubrick.htvapps.com/mediaos.s3.amazonaws.com/images/cnn-l19jb21wb25lbnr... (309)"
 Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://kubrick.htvapps.com/mediaos.s3.amazonaws.com/images/cnn-l19jb21wb25lbnr... (309)"; SQL statement:
 insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
+2025-09-19 20:54:30.908749+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/1459920/2147483647/strip/true... (322)"
+Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/1459920/2147483647/strip/true... (322)"; SQL statement:
+insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
+2025-09-19 20:55:36.238056+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/1459920/2147483647/strip/true... (322)"
+Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/1459920/2147483647/strip/true... (322)"; SQL statement:
+insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
+2025-09-19 21:00:00.909330+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/1459920/2147483647/strip/true... (322)"
+Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/1459920/2147483647/strip/true... (322)"; SQL statement:
+insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
