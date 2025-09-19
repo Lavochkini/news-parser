@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -28,32 +29,73 @@
                     </TextField>
                 </VBox>
 
-                <!-- Основна частина зліва + settings справа -->
+                <!-- Основна частина: центр + панель справа -->
                 <HBox style="-fx-background-color: #1B2029;" spacing="0">
 
-                    <!-- Основний контент -->
-                    <VBox fx:id="leftContent" style="-fx-background-color: #1B2029;" HBox.hgrow="ALWAYS" spacing="10">
-                        <HBox spacing="10">
+                    <!-- Центр: пошук, кнопки, блоки -->
+                    <VBox fx:id="leftContent" spacing="20" style="-fx-background-color: #1B2029;" HBox.hgrow="ALWAYS">
+
+                        <!-- Пошук і кнопка налаштувань -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
                             <TextField fx:id="mainsearchField" promptText="Search" HBox.hgrow="ALWAYS"
                                        style="-fx-background-color: #2d2d2d; -fx-text-fill: white; -fx-prompt-text-fill: gray;">
                                 <HBox.margin>
-                                    <Insets top="10" right="-10" bottom="10" left="10"/>
+                                    <Insets top="10" right="0" bottom="10" left="10"/>
                                 </HBox.margin>
                             </TextField>
 
                             <Button fx:id="settingsButton"
                                     onAction="#toggleSettingsMenu"
                                     text="⚙"
-                                    style="-fx-background-color: #1B2029; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 25px;">
-                            </Button>
+                                    style="-fx-background-color: #1B2029; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 25px;"/>
                         </HBox>
 
+                        <!-- Лінки входу -->
                         <HBox alignment="CENTER" spacing="40">
                             <Label onMouseClicked="#openLogin" text="Login" textFill="skyblue"/>
                             <Label onMouseClicked="#openRegistration" text="Registration" textFill="skyblue"/>
                         </HBox>
 
-                        
+                        <!-- Блоки F у GridPane -->
+                        <GridPane hgap="20" vgap="20" alignment="CENTER"
+                                  style="-fx-background-color: #1B2029; -fx-padding: 20;">
+                            <!-- 1 -->
+                            <BorderPane GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                        style="-fx-background-color: #2a2a2a; -fx-border-color: gray; -fx-border-width: 1; -fx-background-radius: 5; -fx-padding: 10;"
+                                        prefWidth="450" prefHeight="350">
+                                <center>
+                                    <Label text="F" style="-fx-font-size: 100; -fx-text-fill: blue; -fx-font-weight: bold;" />
+                                </center>
+                            </BorderPane>
+
+                            <!-- 2 -->
+                            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                        style="-fx-background-color: #2a2a2a; -fx-border-color: gray; -fx-border-width: 1; -fx-background-radius: 5; -fx-padding: 10;"
+                                        prefWidth="450" prefHeight="350">
+                                <center>
+                                    <Label text="F" style="-fx-font-size: 100; -fx-text-fill: blue; -fx-font-weight: bold;" />
+                                </center>
+                            </BorderPane>
+
+                            <!-- 3 -->
+                            <BorderPane GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                        style="-fx-background-color: #2a2a2a; -fx-border-color: gray; -fx-border-width: 1; -fx-background-radius: 5; -fx-padding: 10;"
+                                        prefWidth="450" prefHeight="350">
+                                <center>
+                                    <Label text="F" style="-fx-font-size: 100; -fx-text-fill: blue; -fx-font-weight: bold;" />
+                                </center>
+                            </BorderPane>
+
+                            <!-- 4 -->
+                            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                        style="-fx-background-color: #2a2a2a; -fx-border-color: gray; -fx-border-width: 1; -fx-background-radius: 5; -fx-padding: 10;"
+                                        prefWidth="450" prefHeight="350">
+                                <center>
+                                    <Label text="F" style="-fx-font-size: 100; -fx-text-fill: blue; -fx-font-weight: bold;" />
+                                </center>
+                            </BorderPane>
+                        </GridPane>
+
                     </VBox>
 
                     <!-- Панель справа -->
@@ -63,14 +105,11 @@
                           maxWidth="300"
                           minWidth="300"
                           visible="false"
-                          managed="false"
-                    >
+                          managed="false">
                         <Label text="Settings" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
                     </VBox>
                 </HBox>
-
             </items>
         </SplitPane>
     </center>
-
 </BorderPane>

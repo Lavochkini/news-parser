@@ -16,7 +16,7 @@
     <!-- Зліва: логін-форма -->
     <VBox spacing="15" alignment="CENTER">
 
-        <Label style="-fx-font-size: 55; -fx-text-fill: blue; -fx-font-weight: bold;" text="MrDaks" />
+        <Label style="-fx-font-size: 55; -fx-text-fill: blue; -fx-font-weight: bold;" text="Fistserios" />
 
         <Label style="-fx-font-size: 24; -fx-text-fill: white; -fx-font-weight: bold;" text="Login" />
 

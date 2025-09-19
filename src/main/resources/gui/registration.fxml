@@ -18,7 +18,7 @@
     <ImageView fx:id="imageView" fitWidth="300" preserveRatio="true" />
     <VBox spacing="15" alignment="CENTER">
 
-    <Label style="-fx-font-size: 55; -fx-text-fill: blue; -fx-font-weight: bold;" text="MrDaks" />
+    <Label style="-fx-font-size: 55; -fx-text-fill: blue; -fx-font-weight: bold;" text="Fistserios" />
 
     <Label style="-fx-font-size:25; -fx-text-fill: white; -fx-font-weight: bold" text="Registration"/>
 

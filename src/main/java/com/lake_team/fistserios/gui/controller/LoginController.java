@@ -1,13 +1,18 @@
 package com.lake_team.fistserios.gui.controller;
 
+import com.lake_team.fistserios.util.StageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import org.springframework.stereotype.Component;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,26 +24,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 
 @Component
-
 public class LoginController {
-    @FXML
-    private ImageView imageView;
-
-    @FXML
-    private ImageView imageViewRight;
-
-    @FXML
-    private TextField emailField;
-    ;
-
-    @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private Label emailErrorLabel;
-
-    @FXML
-    private Label passwordErrorLabel;
+    @FXML private ImageView imageView;
+    @FXML private ImageView imageViewRight;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+    @FXML private Label emailErrorLabel;
+    @FXML private Label passwordErrorLabel;
 
 
     @FXML
@@ -54,10 +46,8 @@ public class LoginController {
     private void handleLogin() {
         String email = emailField.getText();
         String password = passwordField.getText();
-
         boolean hasError = false;
 
-        // --- Email validation ---
         if (email == null || email.isEmpty()) {
             emailErrorLabel.setText("Write your E-mail");
             hasError = true;
@@ -68,7 +58,6 @@ public class LoginController {
             emailErrorLabel.setText("");
         }
 
-        // --- Password validation ---
         if (password == null || password.isEmpty()) {
             passwordErrorLabel.setText("Password is required");
             hasError = true;
@@ -76,17 +65,11 @@ public class LoginController {
             passwordErrorLabel.setText("");
         }
 
-        if (hasError) {
-            return; // stop login if validation fails
-        }
+        if (hasError) return;
 
         try {
-            // --- Make request to backend ---
             HttpClient client = HttpClient.newHttpClient();
-
-            String jsonBody = String.format(
-                    "{\"email\":\"%s\", \"password\":\"%s\"}", email, password
-            );
+            String jsonBody = String.format("{\"email\":\"%s\", \"password\":\"%s\"}", email, password);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8080/auth/login"))
@@ -96,24 +79,14 @@ public class LoginController {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // --- Check login result ---
             if (response.statusCode() == 200) {
-                // Login successful → open main page
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
                 Parent root = loader.load();
-
                 Stage stage = (Stage) emailField.getScene().getWindow();
+                Scene scene = new Scene(root);
 
-                double width = stage.getScene().getWidth();
-                double height = stage.getScene().getHeight();
-                boolean maximized = stage.isMaximized();
-
-                Scene scene = new Scene(root, width, height);
-                stage.setScene(scene);
-                stage.setMaximized(maximized);
-                stage.show();
+                StageUtil.switchScene(stage, scene);
             } else {
-                // Instead of popup → inline error
                 passwordErrorLabel.setText("Invalid email or password");
             }
         } catch (Exception e) {
@@ -123,27 +96,12 @@ public class LoginController {
     }
 
     @FXML
-    private void openRegistration() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/registration.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) emailField.getScene().getWindow(); // поточне вікно
-
-            double width = stage.getScene().getWidth();
-            double height = stage.getScene().getHeight();
-
-            boolean maximized = stage.isMaximized();
-
-            Scene scene = new Scene(root, width, height);
-            stage.setScene(scene);
-
-            stage.setMaximized(maximized);
-
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void openRegistration() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/registration.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        Scene scene = new Scene(root);
+        StageUtil.switchScene(stage, scene);
     }
 
     @FXML
@@ -152,19 +110,12 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) emailField.getScene().getWindow();
-
-            double width = stage.getScene().getWidth();
-            double height = stage.getScene().getHeight();
-
-            boolean maximized = stage.isMaximized();
-            Scene scene = new Scene(root, width, height);
-            stage.setScene(scene);
-
-            stage.setMaximized(maximized);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @FXML
+    private void openGuest() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        Scene scene = new Scene(root);
+        StageUtil.switchScene(stage, scene);
     }
 }
