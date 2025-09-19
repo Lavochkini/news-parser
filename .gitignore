@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Локальні конфіги (API ключі, паролі)
+src/main/resources/application-local.properties

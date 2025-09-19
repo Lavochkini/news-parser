@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.lake_team.fistserios.service.UserService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,23 +33,14 @@ public class AuthController {
         String email = body.get("email");
         String password = body.get("password");
 
-        Optional<User> optionalUser = userService.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            if (encoder.matches(password, user.getPassword())) { // порівнюємо хеш з введеним паролем
-                Map<String, String> response = Map.of(
+        return userService.login(email, password)
+                .map(user -> ResponseEntity.ok(Map.of(
                         "status", "success",
                         "username", user.getUsername(),
                         "email", user.getEmail()
-                );
-                return ResponseEntity.ok(response);
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("status", "error"));
+                )))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("status", "error")));
     }
 
     @PostMapping("/register")
@@ -55,6 +48,31 @@ public class AuthController {
         String username = body.get("username");
         String email = body.get("email");
         String password = body.get("password");
+
+        List<Map<String, String>> errors = new ArrayList<>();
+
+        if (userService.ifUserExistByEmail(email)) {
+            errors.add(Map.of(
+                    "field", "email",
+                    "message", "Registration failed: Email is used"
+            ));
+        }
+
+        if (userService.ifUserExistByUsername(username)) {
+            errors.add(Map.of(
+                    "field", "username",
+                    "message", "Registration failed: Username is used"
+            ));
+        }
+
+        if (!errors.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    Map.of(
+                            "status", "error",
+                            "errors", errors
+                    )
+            );
+        }
 
         try {
             User savedUser = userService.registerUser(username, email, password);
