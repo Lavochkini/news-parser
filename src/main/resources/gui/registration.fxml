@@ -3,11 +3,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
+
+
+<HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.lake_team.fistserios.gui.controller.RegistrationController"
       alignment="CENTER" spacing="15" style="-fx-background-color: #1e1e1e; -fx-padding:20 ">
+
+    <ImageView fx:id="imageView" fitWidth="300" preserveRatio="true" />
+    <VBox spacing="15" alignment="CENTER">
 
     <Label style="-fx-font-size: 55; -fx-text-fill: blue; -fx-font-weight: bold;" text="MrDaks" />
 
@@ -42,4 +51,7 @@
         <Label onMouseClicked="#openLogin" text="Login" textFill="skyblue"  />
         <Label onMouseClicked="#openGuest" text="Guest" textFill="lightgreen" />
     </HBox>
-</VBox>
+    </VBox>
+    <ImageView fx:id="imageViewRight" fitWidth="300" preserveRatio="true" />
+</HBox>
+
