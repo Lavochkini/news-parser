@@ -34,3 +34,7 @@ build/
 
 # Локальні конфіги (API ключі, паролі)
 src/main/resources/application-local.properties
+
+# H2 database files
+*.mv.db
+*.trace.db
