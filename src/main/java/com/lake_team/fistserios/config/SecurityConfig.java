@@ -17,15 +17,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // вимикаємо CSRF, щоб можна було тестити з Postman
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**",  "/users/**").permitAll()// дозволяємо доступ до наших ендпоїнтів
+                        .requestMatchers("/auth/**",  "/users/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().authenticated() // все інше вимагає логіну
+                        .anyRequest().permitAll() // все інше теж без логіну
                 )
-                .formLogin(form -> form.disable()) // вимикаємо дефолтну форму
-                .httpBasic(httpBasic -> httpBasic.disable()); // і базову авторизацію
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
+
 }

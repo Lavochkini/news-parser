@@ -19,6 +19,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+
 @Component
 public class LoginController {
     @FXML private ImageView imageView;
@@ -27,6 +31,7 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label emailErrorLabel;
     @FXML private Label passwordErrorLabel;
+
 
     @FXML
     public void initialize() {
@@ -98,6 +103,12 @@ public class LoginController {
         Scene scene = new Scene(root);
         StageUtil.switchScene(stage, scene);
     }
+
+    @FXML
+    private void openGuest() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+            Parent root = loader.load();
 
     @FXML
     private void openGuest() throws IOException {
