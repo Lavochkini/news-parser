@@ -104,11 +104,6 @@ public class LoginController {
         StageUtil.switchScene(stage, scene);
     }
 
-    @FXML
-    private void openGuest() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
-            Parent root = loader.load();
 
     @FXML
     private void openGuest() throws IOException {
