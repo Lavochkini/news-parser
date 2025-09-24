@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fistserios Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div class="login-image">
+    <img th:src="@{/images/leftImage.png}" alt="Left Login Image" />
+</div>
+
+<div class="login-container">
+    <div class="login-form">
+        <h1 class="logo">Fistserios</h1>
+        <h2>Login</h2>
+
+        <form id="loginForm">
+            <input type="text" name="email" placeholder="E-mail" />
+            <div id="emailError" class="error-label"></div>
+
+            <input type="password" name="password" placeholder="Password" />
+            <div id="passwordError" class="error-label"></div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="links">
+            <a th:href="@{/register}" class="link-blue">Registration</a>
+            <a th:href="@{/guest}" class="link-green">Guest</a>
+        </div>
+    </div>
+</div>
+
+<div class="login-image">
+    <img th:src="@{/images/rightImage.png}" alt="Right Login Image" />
+</div>
+
+<script th:src="@{/js/login.js}"></script>
+</body>
+</html>

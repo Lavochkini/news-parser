@@ -1,6 +1,6 @@
 package com.lake_team.fistserios.gui.controller;
 
-import com.lake_team.fistserios.util.StageUtil;
+import com.lake_team.fistserios.gui.util.StageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -28,7 +28,7 @@ public class MainController {
 
     @FXML
     private void openLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/login.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) mainsearchField.getScene().getWindow();
         Scene scene = new Scene(root);
@@ -37,7 +37,7 @@ public class MainController {
 
     @FXML
     private void openRegistration() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/registration.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/registration.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) mainsearchField.getScene().getWindow();
         Scene scene = new Scene(root);

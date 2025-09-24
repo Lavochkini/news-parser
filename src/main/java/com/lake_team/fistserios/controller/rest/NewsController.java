@@ -1,4 +1,4 @@
-package com.lake_team.fistserios.controller;/*
+package com.lake_team.fistserios.controller.rest;/*
   @author Bogdan
   @project fistserios
   @class NewsController
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController

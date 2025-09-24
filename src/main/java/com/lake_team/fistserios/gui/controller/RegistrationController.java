@@ -1,20 +1,17 @@
 package com.lake_team.fistserios.gui.controller;
 
-import com.lake_team.fistserios.util.StageUtil;
+import com.lake_team.fistserios.gui.util.StageUtil;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import javafx.scene.input.MouseEvent;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
@@ -50,10 +47,10 @@ public class RegistrationController {
 
     @FXML
     public void initialize() {
-        Image leftImage = new Image(getClass().getResource("/gui/images/left_art.png").toExternalForm());
+        Image leftImage = new Image(getClass().getResource("/static/images/leftImage.png").toExternalForm());
         imageView.setImage(leftImage);
 
-        Image rightImage = new Image(getClass().getResource("/gui/images/right_art.png").toExternalForm());
+        Image rightImage = new Image(getClass().getResource("/static/images/rightImage.png").toExternalForm());
         imageViewRight.setImage(rightImage);
     }
 
@@ -127,7 +124,7 @@ public class RegistrationController {
 
     @FXML
     private void openLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/login.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) emailField.getScene().getWindow();
         Scene scene = new Scene(root);
@@ -136,7 +133,7 @@ public class RegistrationController {
 
     @FXML
     private void openGuest() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/main.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) emailField.getScene().getWindow();
         Scene scene = new Scene(root);

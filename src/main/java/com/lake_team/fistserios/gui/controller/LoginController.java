@@ -1,6 +1,6 @@
 package com.lake_team.fistserios.gui.controller;
 
-import com.lake_team.fistserios.util.StageUtil;
+import com.lake_team.fistserios.gui.util.StageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,10 +19,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.Image;
-
 @Component
 public class LoginController {
     @FXML private ImageView imageView;
@@ -35,10 +31,10 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        Image leftImage = new Image(getClass().getResource("/gui/images/left_art.png").toExternalForm());
+        Image leftImage = new Image(getClass().getResource("/static/images/leftImage.png").toExternalForm());
         imageView.setImage(leftImage);
 
-        Image rightImage = new Image(getClass().getResource("/gui/images/right_art.png").toExternalForm());
+        Image rightImage = new Image(getClass().getResource("/static/images/rightImage.png").toExternalForm());
         imageViewRight.setImage(rightImage);
     }
 
@@ -80,7 +76,7 @@ public class LoginController {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/main.fxml"));
                 Parent root = loader.load();
                 Stage stage = (Stage) emailField.getScene().getWindow();
                 Scene scene = new Scene(root);
@@ -97,7 +93,7 @@ public class LoginController {
 
     @FXML
     private void openRegistration() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/registration.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/registration.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) emailField.getScene().getWindow();
         Scene scene = new Scene(root);
@@ -105,14 +101,8 @@ public class LoginController {
     }
 
     @FXML
-    private void openGuest() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
-            Parent root = loader.load();
-
-    @FXML
     private void openGuest() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/templates/FXML/main.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) emailField.getScene().getWindow();
         Scene scene = new Scene(root);

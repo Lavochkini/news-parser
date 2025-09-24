@@ -13,7 +13,7 @@
       style="-fx-background-color: #1e1e1e; -fx-padding: 40;">
 
     <ImageView fx:id="imageView" fitWidth="300" preserveRatio="true" />
-    <!-- Зліва: логін-форма -->
+
     <VBox spacing="15" alignment="CENTER">
 
         <Label style="-fx-font-size: 55; -fx-text-fill: blue; -fx-font-weight: bold;" text="Fistserios" />

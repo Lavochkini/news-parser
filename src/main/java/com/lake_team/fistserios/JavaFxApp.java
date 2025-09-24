@@ -1,6 +1,6 @@
 package com.lake_team.fistserios;
 
-import com.lake_team.fistserios.util.StageUtil;
+import com.lake_team.fistserios.gui.util.StageUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -26,7 +26,7 @@ public class JavaFxApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/templates/FXML/login.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
 
         Parent root = fxmlLoader.load();
