@@ -32,15 +32,16 @@ body {
     color: #3498db;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: -10px;
 }
 
 .login-form h2 {
     color: #ffffff;
-    font-weight: 500;
+    font-weight: 0;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: -5px;
 }
+
 
 .login-form input {
     padding: 12px;
@@ -84,8 +85,11 @@ body {
     color: #e74c3c;
     font-size: 14px;
     min-height: 18px;
+    text-align: center;   /* центрує текст */
+    width: 100%;          /* робить ширину як у батьківського контейнера */
+    max-width: 400px;     /* щоб не ширше за input */
+    margin: 0 auto;       /* вирівнює по центру */
     display: block;
-    margin: 0 auto;
 }
 
 /* Посилання */

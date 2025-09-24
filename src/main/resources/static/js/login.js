@@ -26,7 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!password) {
             passwordError.textContent = "Password is required";
             hasError = true;
-        }
+        } else if (password.length < 6) {
+        passwordError.textContent = "Password must be at least 6 characters";
+        hasError = true;
+    }
         if (hasError) return;
 
         try {
