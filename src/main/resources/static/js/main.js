@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Main page loaded!");
-    // Тут можеш робити що завгодно, наприклад:
-    const header = document.querySelector("h1");
-    header.style.color = "blue";
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsMenu = document.getElementById("settingsMenu");
+
+    settingsButton.addEventListener("click", () => {
+        settingsMenu.classList.toggle("hidden");
+    });
 });

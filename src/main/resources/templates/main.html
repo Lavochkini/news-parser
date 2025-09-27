@@ -5,12 +5,37 @@
     <title>Main Page</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-<h1>Welcome to Main Page</h1>
+<body style="background-color: #1e1e1e; color: white;">
 
-<a href="/login">Login</a> |
-<a href="/registration">Registration</a> |
-<a href="/guest">Guest</a>
+<div class="container">
+
+    <!-- Верхній блок пошуку -->
+    <div class="top-bar">
+        <input type="text" id="mainSearch" placeholder="Search..." class="search-field">
+        <button id="settingsButton" class="settings-btn">⚙</button>
+    </div>
+
+    <!-- Лінки -->
+    <div class="links">
+        <a href="/login.html">Login</a>
+        <a href="/registration.html">Registration</a>
+    </div>
+
+    <!-- Основний Grid із 4 блоками -->
+    <div class="grid">
+        <div class="card">F1</div>
+        <div class="card">F2</div>
+        <div class="card">F3</div>
+        <div class="card">F4</div>
+    </div>
+
+    <!-- Праве меню -->
+    <div id="settingsMenu" class="settings-panel hidden">
+        <h3>⚙ Settings</h3>
+        <p>Here will be your options</p>
+    </div>
+
+</div>
 
 <script src="/js/main.js"></script>
 </body>
