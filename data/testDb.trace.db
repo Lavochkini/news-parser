@@ -5,3 +5,9 @@ insert into news (description,image_url,published_at,source,title,url,id) values
 2025-09-26 00:00:01.459044+02:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLDataException: Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://nbcsports.brightspotcdn.com/dims4/default/4add735/2147483647/strip/true... (317)"; SQL statement:
 insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
+2025-09-29 21:00:01.584758+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://ewscripps.brightspotcdn.com/dims4/default/3f8e861/2147483647/strip/true... (258)"; SQL statement:
+insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
+2025-09-29 22:00:01.077820+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://ewscripps.brightspotcdn.com/dims4/default/3f8e861/2147483647/strip/true... (258)"; SQL statement:
+insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
