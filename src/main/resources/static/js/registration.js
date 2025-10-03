@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("registrationForm");
     const usernameInput = document.querySelector("input[name='username']");
