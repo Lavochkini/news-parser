@@ -1,46 +1,56 @@
-package com.lake_team.fistserios.controller.rest;/*
-  @author Bogdan
-  @project fistserios
-  @class NewsController
-  @version 1.0.0
-  @since 17.09.2025 - 18.26
-*/
-
 import com.lake_team.fistserios.model.NewsItem;
 import com.lake_team.fistserios.repository.NewsRepository;
 import com.lake_team.fistserios.service.NewsApiService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/news")
+@RequiredArgsConstructor
+@CrossOrigin // keep only if your frontend runs on a different origin/port
 public class NewsController {
 
+    private final NewsRepository newsRepository;
     private final NewsApiService newsApiService;
 
-    private final NewsRepository newsRepository;
+    /**
+     * Fast read: DB only, no external API calls.
+     * Example: GET /news?page=0&size=6
+     */
+    @GetMapping
+    public Page<NewsItem> getPage(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "6") int size) {
+        return newsRepository.findAllByOrderByPublishedAtDesc(PageRequest.of(page, size));
+    }
 
+    /** Backward compatibility, but prefer GET /news with pagination. */
     @GetMapping("/all")
-    public List<NewsItem> getAllNews() {
+    public List<NewsItem> getAll() {
         return newsRepository.findAll();
     }
 
+    /** Get a single news item by id. */
     @GetMapping("/{id}")
-    public ResponseEntity<NewsItem> getNewsById(@PathVariable Long id) {
+    public ResponseEntity<NewsItem> getById(@PathVariable Long id) {
         return newsRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/manual-update")
-    public List<NewsItem> manualUpdate() {
-        return newsApiService.fetchAndSaveTopHeadlines("us");
+    /**
+     * Slow update: trigger refresh asynchronously so the client is not blocked.
+     * Returns 202 Accepted immediately.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh() {
+        newsApiService.refreshAsync(); // requires @Async in the service (step 2)
+        // Alternative without @Async:
+        // CompletableFuture.runAsync(() -> newsApiService.fetchAndSaveTopHeadlines("us"));
+        return ResponseEntity.accepted().build();
     }
 }
