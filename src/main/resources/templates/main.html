@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Page</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body style="background-color: #1e1e1e; color: white;">
+
+<div class="container">
+
+    <!-- Верхній блок пошуку -->
+    <div class="top-bar">
+        <div class="search-wrapper">
+            <input type="text" id="mainSearch" placeholder="Search..." class="search-field">
+            <button type="button" id="settingsButton" class="settings-btn">⚙</button>
+        </div>
+    </div>
+
+    <!-- Лінки -->
+    <div class="links">
+        <a th:href="@{/login}" class="link-blue">Login</a>
+        <a th:href="@{/register}" class="link-green">Registration</a>
+    </div>
+
+    <!-- Основний Grid із 4 блоками -->
+    <div class="grid">
+        <div class="cards-container">Loading...</div>
+        <div class="cards-container">Loading...</div>
+        <div class="cards-container">Loading...</div>
+        <div class="cards-container">Loading...</div>
+        <div class="cards-container">Loading...</div>
+        <div class="cards-container">Loading...</div>
+    </div>
+
+    <!-- Праве меню -->
+    <div id="settingsPanel" class="settings-panel">
+        <h3>⚙ Settings</h3>
+        <p>Here will be your options</p>
+    </div>
+
+</div>
+
+<!-- JS -->
+<script th:src="@{/js/main.js}" defer></script>
+</body>
+</html>

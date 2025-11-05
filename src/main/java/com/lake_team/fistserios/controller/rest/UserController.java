@@ -1,4 +1,4 @@
-package com.lake_team.fistserios.controller;
+package com.lake_team.fistserios.controller.rest;
 
 import com.lake_team.fistserios.model.User;
 import com.lake_team.fistserios.repository.UserRepository;

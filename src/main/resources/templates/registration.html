@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fistserios Registration</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div class="login-image">
+    <img th:src="@{/images/leftImage.png}" alt="Left Registration Image" />
+</div>
+
+<div class="login-container">
+    <div class="login-form">
+        <h1 class="logo">Fistserios</h1>
+        <h2>Registration</h2>
+
+        <form id="registrationForm">
+            <input type="text" name="username" placeholder="Username" />
+            <div id="usernameError" class="error-label"></div>
+
+            <input type="text" name="email" placeholder="E-mail" />
+            <div id="emailError" class="error-label"></div>
+
+            <input type="password" name="password" placeholder="Password" />
+            <div id="passwordError" class="error-label"></div>
+
+            <input type="password" name="confirmPassword" placeholder="Confirm Password" />
+            <div id="confirmPasswordError" class="error-label"></div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="links">
+            <a th:href="@{/login}" class="link-blue">Login</a>
+            <a th:href="@{/main}" class="link-green">Guest</a>
+        </div>
+    </div>
+</div>
+
+<div class="login-image">
+    <img th:src="@{/images/rightImage.png}" alt="Right Registration Image" />
+</div>
+
+<script th:src="@{/js/registration.js}"></script>
+</body>
+</html>
