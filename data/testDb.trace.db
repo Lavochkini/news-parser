@@ -11,11 +11,15 @@ insert into news (description,image_url,published_at,source,title,url,id) values
 2025-09-29 22:00:01.077820+02:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLDataException: Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://ewscripps.brightspotcdn.com/dims4/default/3f8e861/2147483647/strip/true... (258)"; SQL statement:
 insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
-2025-10-26 16:34:27.341227+02:00 jdbc[3]: exception
+2025-11-05 18:27:18.030780+02:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://cst.brightspotcdn.com/dims4/default/2145dbd/2147483647/strip/true/crop/... (266)"
 Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://cst.brightspotcdn.com/dims4/default/2145dbd/2147483647/strip/true/crop/... (266)"; SQL statement:
-insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
-2025-10-26 16:51:02.174215+02:00 jdbc[3]: exception
+INSERT INTO "PUBLIC"."NEWS_COPY_3_0"("ID", "DESCRIPTION", "IMAGE_URL", "PUBLISHED_AT", "SOURCE", "TITLE", "URL") OVERRIDING SYSTEM VALUE SELECT "ID", "DESCRIPTION", "IMAGE_URL", "PUBLISHED_AT", "SOURCE", "TITLE", "URL" FROM "PUBLIC"."NEWS" [22001-232]
+2025-11-05 18:28:14.316990+02:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://cst.brightspotcdn.com/dims4/default/2145dbd/2147483647/strip/true/crop/... (266)"
 Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://cst.brightspotcdn.com/dims4/default/2145dbd/2147483647/strip/true/crop/... (266)"; SQL statement:
-insert into news (description,image_url,published_at,source,title,url,id) values (?,?,?,?,?,?,default) [22001-232]
+INSERT INTO "PUBLIC"."NEWS_COPY_3_0"("ID", "DESCRIPTION", "IMAGE_URL", "PUBLISHED_AT", "SOURCE", "TITLE", "URL") OVERRIDING SYSTEM VALUE SELECT "ID", "DESCRIPTION", "IMAGE_URL", "PUBLISHED_AT", "SOURCE", "TITLE", "URL" FROM "PUBLIC"."NEWS" [22001-232]
+2025-11-05 19:09:07.801682+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Значение слишком длинное для поля "IMAGE_URL CHARACTER VARYING(255)": "'https://cst.brightspotcdn.com/dims4/default/2145dbd/2147483647/strip/true/crop/... (266)"
+Value too long for column "IMAGE_URL CHARACTER VARYING(255)": "'https://cst.brightspotcdn.com/dims4/default/2145dbd/2147483647/strip/true/crop/... (266)"; SQL statement:
+INSERT INTO "PUBLIC"."NEWS_COPY_3_0"("ID", "DESCRIPTION", "IMAGE_URL", "PUBLISHED_AT", "SOURCE", "TITLE", "URL") OVERRIDING SYSTEM VALUE SELECT "ID", "DESCRIPTION", "IMAGE_URL", "PUBLISHED_AT", "SOURCE", "TITLE", "URL" FROM "PUBLIC"."NEWS" [22001-232]
