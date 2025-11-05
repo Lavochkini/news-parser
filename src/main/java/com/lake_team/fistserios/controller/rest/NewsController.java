@@ -1,9 +1,9 @@
+package com.lake_team.fistserios.controller.rest;
+
 import com.lake_team.fistserios.model.NewsItem;
-import com.lake_team.fistserios.repository.NewsRepository;
 import com.lake_team.fistserios.service.NewsApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,7 +15,6 @@ import java.util.List;
 @CrossOrigin // keep only if your frontend runs on a different origin/port
 public class NewsController {
 
-    private final NewsRepository newsRepository;
     private final NewsApiService newsApiService;
 
     /**
@@ -25,21 +24,20 @@ public class NewsController {
     @GetMapping
     public Page<NewsItem> getPage(@RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "6") int size) {
-        return newsRepository.findAllByOrderByPublishedAtDesc(PageRequest.of(page, size));
+        return newsApiService.getNewsPage(page, size);
     }
 
     /** Backward compatibility, but prefer GET /news with pagination. */
     @GetMapping("/all")
     public List<NewsItem> getAll() {
-        return newsRepository.findAll();
+        return newsApiService.getAllNews();
     }
 
     /** Get a single news item by id. */
     @GetMapping("/{id}")
     public ResponseEntity<NewsItem> getById(@PathVariable Long id) {
-        return newsRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return newsApiService.getById(id);
+
     }
 
     /**
