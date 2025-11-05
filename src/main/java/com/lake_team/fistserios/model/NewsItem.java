@@ -34,6 +34,7 @@ public class NewsItem {
     @Column(nullable = false, unique = true, length = 1000)
     private String url;
 
+    @Column(nullable = false, unique = true, length = 2000)
     private String imageUrl;
 
     private LocalDateTime publishedAt;
