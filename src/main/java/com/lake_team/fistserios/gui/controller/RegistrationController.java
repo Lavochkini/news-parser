@@ -70,7 +70,7 @@ public class RegistrationController {
             userNameErrorLabel.setText("Username must be at least 3 characters");
             hasError = true;
         } else {
-            userNameErrorLabel.setText(""); // no error
+            userNameErrorLabel.setText("");
         }
 
         if (email == null || email.isEmpty()) {
@@ -94,17 +94,14 @@ public class RegistrationController {
         }
 
         if (hasError) {
-            return; // stop registration if validation fails
+            return;
         }
 
         try {
-            // Формуємо JSON
+
             String jsonBody = String.format("{\"username\":\"%s\", \"email\":\"%s\", \"password\":\"%s\"}", username ,email, password);
 
-            // Створюємо HTTP клієнт
             HttpClient client = HttpClient.newHttpClient();
-
-            // Готуємо запит
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8080/auth/register"))

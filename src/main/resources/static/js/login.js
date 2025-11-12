@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
 
-        // Простенька валідація на фронті
         let hasError = false;
         if (!email) {
             emailError.textContent = "Write your E-mail";
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = await response.json();
 
             if (response.ok && result.status === "success") {
-                // Успіх — переходимо на main
                 window.location.href = "/main";
             } else {
                 passwordError.textContent = "Invalid email or password";

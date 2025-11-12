@@ -13,19 +13,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         System.out.println(">>> SecurityConfig is ACTIVE"); // debug marker
 
-        // Disable CSRF for simple JSON API
+
         http.csrf(csrf -> csrf.disable());
 
-        // Allow everything (temporarily, for testing)
+
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/**").permitAll()
                 .anyRequest().permitAll()
         );
 
-        // Allow H2 console frames (if you use it)
+
         http.headers(h -> h.frameOptions(f -> f.disable()));
 
-        // Turn off default login forms/basic auth
+
         http.httpBasic(b -> b.disable());
         http.formLogin(f -> f.disable());
 

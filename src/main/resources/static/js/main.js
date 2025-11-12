@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = document.querySelector(".cards-container");
   if (!container) return;
 
-  // Skeletons
   container.innerHTML = "";
   for (let i = 0; i < 6; i++) {
     const sk = document.createElement("div");
@@ -12,13 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8000); // 8s timeout
+  const timer = setTimeout(() => controller.abort(), 8000);
 
   fetch("/news?page=0&size=6", { signal: controller.signal })
     .then(async res => {
       clearTimeout(timer);
-
-      // Guard: ensure JSON (sometimes server returns HTML error page)
       const ct = res.headers.get("content-type") || "";
       const text = await res.text();
       if (!res.ok) {

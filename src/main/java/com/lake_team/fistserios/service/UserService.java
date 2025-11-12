@@ -26,28 +26,23 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    //REGISTER
     public User registerUser(String username, String email, String rawPassword) {
         String hashedPassword = passwordEncoder.encode(rawPassword);
         User user = new User(username, email, hashedPassword, Role.USER);
         return userRepository.save(user);
     }
 
-    //LOGIN
     public Optional<User> login(String email, String rawPassword) {
         return userRepository.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()));
     }
 
-    // CREATE
     public User createUser(User user) { return userRepository.save(user); }
 
-    //FIND BY EMAIL
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    // UPDATE
     public Optional<User> updateUser(Long id, User updatedUser) {
         return userRepository.findById(id)
                 .map(user -> {
@@ -58,10 +53,8 @@ public class UserService {
                 });
     }
 
-    //FIND BY ID
     public Optional<User> findById(Long id){return userRepository.findById(id);}
 
-    //DELETE
     public boolean deleteUser(Long id) {
         try {
             userRepository.deleteById(id);
@@ -71,17 +64,14 @@ public class UserService {
         }
     }
 
-    //ALL USERS
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    //EXIST BY EMAIL
     public boolean ifUserExistByEmail(String email){
         return userRepository.existsByEmail(email);
     }
 
-    //EXIST BY USERNAME
     public boolean ifUserExistByUsername(String username){
         return userRepository.existsByUsername(username);
     }

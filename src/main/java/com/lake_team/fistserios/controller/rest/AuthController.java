@@ -75,7 +75,7 @@ public class AuthController {
         try {
             User savedUser = userService.registerUser(username, email, password);
 
-            // Повертаємо JSON
+
             Map<String, Object> response = Map.of(
                     "status", "success",
                     "message", "User registered successfully",

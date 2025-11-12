@@ -11,10 +11,8 @@ import java.util.Optional;
 @Repository
 public interface NewsRepository extends JpaRepository<NewsItem, Long> {
 
-    // Page of news ordered by publish date (DESC)
     Page<NewsItem> findAllByOrderByPublishedAtDesc(Pageable pageable);
 
-    // Helpers (optional)
     Optional<NewsItem> findByUrl(String url);
     Optional<NewsItem> findTopByOrderByPublishedAtDesc();
 }

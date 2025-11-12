@@ -1,4 +1,3 @@
-/* Загальні стилі */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -19,7 +18,6 @@ body {
     align-items: center;
 }
 
-/* Форма */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -85,14 +83,13 @@ body {
     color: #e74c3c;
     font-size: 14px;
     min-height: 18px;
-    text-align: center;   /* центрує текст */
-    width: 100%;          /* робить ширину як у батьківського контейнера */
-    max-width: 400px;     /* щоб не ширше за input */
-    margin: 0 auto;       /* вирівнює по центру */
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
     display: block;
 }
 
-/* Посилання */
 .links {
     display: flex;
     justify-content: center;
@@ -116,7 +113,6 @@ body {
     text-decoration: underline;
 }
 
-/* Зображення */
 .login-image img {
     width: 300px;
     border-radius: 10px;

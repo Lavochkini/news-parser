@@ -39,7 +39,6 @@
         </HBox>
     </VBox>
 
-    <!-- Справа: зображення -->
     <ImageView fx:id="imageViewRight" fitWidth="300" preserveRatio="true" />
 
 

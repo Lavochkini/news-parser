@@ -9,7 +9,6 @@
 
 <div class="container">
 
-    <!-- Верхній блок пошуку -->
     <div class="top-bar">
         <div class="search-wrapper">
             <input type="text" id="mainSearch" placeholder="Search..." class="search-field">
@@ -17,13 +16,11 @@
         </div>
     </div>
 
-    <!-- Лінки -->
     <div class="links">
         <a th:href="@{/login}" class="link-blue">Login</a>
         <a th:href="@{/register}" class="link-green">Registration</a>
     </div>
 
-    <!-- Основний Grid із 4 блоками -->
     <div class="grid">
         <div class="card">Loading...</div>
         <div class="card">Loading...</div>
@@ -33,7 +30,6 @@
         <div class="card">Loading...</div>
     </div>
 
-    <!-- Праве меню -->
     <div id="settingsPanel" class="settings-panel">
         <h3>⚙ Settings</h3>
         <p>Here will be your options</p>
@@ -41,7 +37,6 @@
 
 </div>
 
-<!-- JS -->
 <script th:src="@{/js/main.js}" defer></script>
 </body>
 </html>

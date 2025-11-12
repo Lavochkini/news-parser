@@ -23,6 +23,6 @@ public class NewsApiArticle {
     private String description;
     private String url;
     private String urlToImage;
-    private String publishedAt; // приходить як String (ISO-8601)
+    private String publishedAt;
     private String content;
 }

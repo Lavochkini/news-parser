@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(of = "url") // рівність визначаємо по url
+@EqualsAndHashCode(of = "url")
 @ToString
 public class NewsItem {
 

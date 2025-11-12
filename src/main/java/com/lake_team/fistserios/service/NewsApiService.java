@@ -16,7 +16,6 @@ public class NewsApiService {
 
     private final NewsRepository repo;
 
-    // Example stub: replace with real external API call
     public List<NewsItem> fetchAndSaveTopHeadlines(String country) {
         // TODO replace with real HTTP call + mapping
         List<NewsItem> items = new ArrayList<>();

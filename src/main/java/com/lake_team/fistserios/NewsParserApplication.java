@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class NewsParserApplication {
 
     public static void main(String[] args) {
-        // Launch JavaFX starter
         JavaFxApp.launchApp(args);
     }
 }

@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        // Очистка попередніх помилок
         usernameError.textContent = "";
         emailError.textContent = "";
         passwordError.textContent = "";
@@ -27,13 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let hasError = false;
 
-        // Перевірка username
         if (!username) {
             usernameError.textContent = "Username is required";
             hasError = true;
         }
 
-        // Перевірка email
         if (!email) {
             emailError.textContent = "E-mail is required";
             hasError = true;
@@ -42,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
             hasError = true;
         }
 
-        // Перевірка password
         if (!password) {
             passwordError.textContent = "Password is required";
             hasError = true;
@@ -51,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
             hasError = true;
         }
 
-        // Перевірка confirmPassword
         if (password !== confirmPassword) {
             confirmPasswordError.textContent = "Passwords do not match";
             hasError = true;
