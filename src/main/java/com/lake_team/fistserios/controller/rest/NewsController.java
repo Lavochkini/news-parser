@@ -1,54 +1,63 @@
 package com.lake_team.fistserios.controller.rest;
 
 import com.lake_team.fistserios.model.NewsItem;
+import com.lake_team.fistserios.model.NewsSourceType;
 import com.lake_team.fistserios.service.NewsApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/news")
 @RequiredArgsConstructor
-@CrossOrigin // keep only if your frontend runs on a different origin/port
+@CrossOrigin
 public class NewsController {
 
     private final NewsApiService newsApiService;
 
     /**
-     * Fast read: DB only, no external API calls.
-     * Example: GET /news?page=0&size=6
+     * GET /news?page=0&size=10&category=Technology&source=GUARDIAN
+     * Усі параметри крім page/size — необов'язкові.
      */
     @GetMapping
-    public Page<NewsItem> getPage(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "6") int size) {
-        return newsApiService.getNewsPage(page, size);
+    public Page<NewsItem> getPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String source) {
+
+        NewsSourceType sourceType = null;
+        if (source != null && !source.isBlank()) {
+            try {
+                sourceType = NewsSourceType.valueOf(source.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // невідомий source — ігноруємо фільтр
+            }
+        }
+        return newsApiService.getNewsPage(page, size, category, sourceType);
     }
 
-    /** Backward compatibility, but prefer GET /news with pagination. */
-    @GetMapping("/all")
-    public List<NewsItem> getAll() {
-        return newsApiService.getAllNews();
-    }
-
-    /** Get a single news item by id. */
     @GetMapping("/{id}")
     public ResponseEntity<NewsItem> getById(@PathVariable Long id) {
         return newsApiService.getById(id);
+    }
 
+    /** Список доступних категорій (для фільтрів у UI). */
+    @GetMapping("/categories")
+    public List<String> getCategories() {
+        return newsApiService.getAvailableCategories();
     }
 
     /**
-     * Slow update: trigger refresh asynchronously so the client is not blocked.
-     * Returns 202 Accepted immediately.
+     * Запускає асинхронне оновлення з усіх джерел.
+     * Повертає 202 Accepted одразу, не чекаючи завершення.
      */
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh() {
-        newsApiService.refreshAsync(); // requires @Async in the service (step 2)
-        // Alternative without @Async:
-        // CompletableFuture.runAsync(() -> newsApiService.fetchAndSaveTopHeadlines("us"));
+        newsApiService.refreshAsync();
         return ResponseEntity.accepted().build();
     }
 }

@@ -1,10 +1,4 @@
-package com.lake_team.fistserios.service;/*
-  @author Bogdan
-  @project fistserios
-  @class NewsStartupChecker
-  @version 1.0.0
-  @since 17.09.2025 - 19.26
-*/
+package com.lake_team.fistserios.service;
 
 import com.lake_team.fistserios.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,30 +16,37 @@ public class NewsStartupChecker {
 
     private final NewsRepository newsRepository;
     private final NewsApiService newsApiService;
+    private final GuardianService guardianService;
+    private final GNewsService gNewsService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void checkAndUpdateNews() {
         long count = newsRepository.count();
 
         if (count == 0) {
-            log.info("News table is empty. Fetching news from API...");
-            newsApiService.fetchAndSaveTopHeadlines("us");
+            log.info("News table is empty. Fetching from all sources...");
+            fetchFromAllSources();
             return;
         }
 
         newsRepository.findTopByOrderByPublishedAtDesc()
                 .ifPresentOrElse(latestNews -> {
                     LocalDateTime publishedAt = latestNews.getPublishedAt();
-                    LocalDateTime now = LocalDateTime.now();
-                    if (publishedAt.isBefore(now.minusHours(168))) {
-                        log.info("Latest news is older than 1 week. Fetching updates from API...");
-                        newsApiService.fetchAndSaveTopHeadlines("us");
+                    if (publishedAt.isBefore(LocalDateTime.now().minusHours(168))) {
+                        log.info("News older than 1 week. Refreshing all sources...");
+                        fetchFromAllSources();
                     } else {
                         log.info("News are up-to-date. No API fetch needed.");
                     }
                 }, () -> {
-                    log.info("No news found. Fetching from API...");
-                    newsApiService.fetchAndSaveTopHeadlines("us");
+                    log.info("No news found. Fetching from all sources...");
+                    fetchFromAllSources();
                 });
+    }
+
+    private void fetchFromAllSources() {
+        newsApiService.fetchAndSaveTopHeadlines("us");
+        guardianService.fetchAndSaveNews(null);
+        gNewsService.fetchAndSaveTopHeadlines("en");
     }
 }
