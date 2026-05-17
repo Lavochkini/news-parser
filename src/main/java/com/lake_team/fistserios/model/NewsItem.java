@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(of = "url") // рівність визначаємо по url
+@EqualsAndHashCode(of = "url")
 @ToString
 public class NewsItem {
 
@@ -31,13 +31,23 @@ public class NewsItem {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
+    private String fullContent;
+
     @Column(nullable = false, unique = true, length = 1000)
     private String url;
 
-    @Column(nullable = false, unique = true, length = 2000)
+    @Column(length = 2000)
     private String imageUrl;
 
     private LocalDateTime publishedAt;
 
     private String source;
+
+    @Column(length = 100)
+    private String category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private NewsSourceType sourceType;
 }
