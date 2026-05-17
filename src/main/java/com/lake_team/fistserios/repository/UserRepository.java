@@ -1,19 +1,13 @@
-package com.lake_team.fistserios.repository;/*
-  @author Bogdan
-  @project fistserios
-  @class UserRepository
-  @version 1.0.0
-  @since 28.08.2025 - 20.49
-*/
+package com.lake_team.fistserios.repository;
 
 import com.lake_team.fistserios.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByUsername(String username);
 

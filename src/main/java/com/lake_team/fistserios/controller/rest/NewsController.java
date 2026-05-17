@@ -3,6 +3,7 @@ package com.lake_team.fistserios.controller.rest;
 import com.lake_team.fistserios.model.NewsItem;
 import com.lake_team.fistserios.model.NewsSourceType;
 import com.lake_team.fistserios.service.NewsApiService;
+import com.lake_team.fistserios.service.RedditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 public class NewsController {
 
     private final NewsApiService newsApiService;
+    private final RedditService  redditService;
 
     /**
      * GET /news?page=0&size=10&category=Technology&source=GUARDIAN
@@ -27,21 +29,20 @@ public class NewsController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String source) {
+            @RequestParam(required = false) String source,
+            @RequestParam(required = false) String search) {
 
         NewsSourceType sourceType = null;
         if (source != null && !source.isBlank()) {
             try {
                 sourceType = NewsSourceType.valueOf(source.toUpperCase());
-            } catch (IllegalArgumentException ignored) {
-                // невідомий source — ігноруємо фільтр
-            }
+            } catch (IllegalArgumentException ignored) {}
         }
-        return newsApiService.getNewsPage(page, size, category, sourceType);
+        return newsApiService.getNewsPage(page, size, category, sourceType, search);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NewsItem> getById(@PathVariable Long id) {
+    public ResponseEntity<NewsItem> getById(@PathVariable String id) {
         return newsApiService.getById(id);
     }
 
@@ -59,5 +60,12 @@ public class NewsController {
     public ResponseEntity<Void> refresh() {
         newsApiService.refreshAsync();
         return ResponseEntity.accepted().build();
+    }
+
+    /** Завантажити новини з Reddit (all subreddits) */
+    @PostMapping("/refresh/reddit")
+    public ResponseEntity<String> refreshReddit() {
+        List<NewsItem> saved = redditService.fetchAndSaveAll();
+        return ResponseEntity.ok("Saved " + saved.size() + " Reddit articles");
     }
 }

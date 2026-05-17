@@ -14,7 +14,6 @@ import java.util.Optional;
 public class UserController {
 
     private final UserRepository userRepository;
-
     private final UserService userService;
 
     public UserController(UserRepository userRepository, UserService userService) {
@@ -22,41 +21,32 @@ public class UserController {
         this.userService = userService;
     }
 
-    // CREATE
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        User savedUser = userService.createUser(user);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(userService.createUser(user));
     }
 
-    // READ - отримати всіх користувачів
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // READ - отримати користувача по id
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
         Optional<User> user = userService.findById(id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
         return userService.updateUser(id, updatedUser)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // DELETE - видалити користувача
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if(userService.deleteUser(id))
-        {
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        if (userService.deleteUser(id)) return ResponseEntity.noContent().build();
         return ResponseEntity.notFound().build();
     }
 }

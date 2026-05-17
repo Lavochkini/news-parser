@@ -41,11 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const result = await response.json();
 
-            if (response.ok && result.status === "success") {
-                // Успіх — переходимо на main
+            if (response.ok && result.token) {
+                Auth.save(result);
                 window.location.href = "/main";
             } else {
-                passwordError.textContent = "Invalid email or password";
+                passwordError.textContent = result.message || "Invalid email or password";
             }
         } catch (err) {
             console.error(err);

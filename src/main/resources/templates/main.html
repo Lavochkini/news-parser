@@ -2,46 +2,96 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Main Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsFeed</title>
     <link rel="stylesheet" th:href="@{/css/main.css}" />
 </head>
-<body style="background-color: #1e1e1e; color: white;">
+<body>
 
-<div class="container">
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<header class="navbar">
+    <div class="navbar__brand">
+        <button id="filterToggle" class="filter-toggle-btn" title="Filters">☰</button>
+        <span class="navbar__icon"></span>
+        <span class="navbar__title">NewsFeed</span>
+    </div>
 
-    <!-- Верхній блок пошуку -->
-    <div class="top-bar">
-        <div class="search-wrapper">
-            <input type="text" id="mainSearch" placeholder="Search..." class="search-field">
-            <button type="button" id="settingsButton" class="settings-btn">⚙</button>
+    <div class="navbar__search">
+        <div class="search-box">
+            <span class="search-box__icon"></span>
+            <input type="text" id="searchInput" placeholder="Search news..." autocomplete="off">
+            <button id="clearSearch" class="search-box__clear" title="Clear">✕</button>
         </div>
+        <button id="searchBtn" class="btn btn--primary">Search</button>
     </div>
 
-    <!-- Лінки -->
-    <div class="links">
-        <a th:href="@{/login}" class="link-blue">Login</a>
-        <a th:href="@{/register}" class="link-green">Registration</a>
-    </div>
+    <nav class="navbar__nav" style="gap:12px">
+        <a href="/dashboard" class="btn btn--ghost">Dashboard</a>
+        <div id="navUser" style="display:flex;align-items:center;gap:8px"></div>
+    </nav>
+</header>
 
-    <!-- Основний Grid із 4 блоками -->
-    <div class="grid">
-        <div class="cards-container">Loading...</div>
-        <div class="cards-container">Loading...</div>
-        <div class="cards-container">Loading...</div>
-        <div class="cards-container">Loading...</div>
-        <div class="cards-container">Loading...</div>
-        <div class="cards-container">Loading...</div>
-    </div>
+<!-- ═══════════════ LAYOUT ═══════════════ -->
+<div class="layout">
 
-    <!-- Праве меню -->
-    <div id="settingsPanel" class="settings-panel">
-        <h3>⚙ Settings</h3>
-        <p>Here will be your options</p>
-    </div>
+    <!-- Backdrop for mobile sidebar -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar__section">
+            <h4 class="sidebar__title">Source</h4>
+            <div class="filter-group" id="sourceFilters">
+                <label class="filter-chip filter-chip--active">
+                    <input type="radio" name="source" value="" checked hidden>All
+                </label>
+                <label class="filter-chip">
+                    <input type="radio" name="source" value="NEWS_API" hidden>
+                    <span class="dot dot--newsapi"></span>NewsAPI
+                </label>
+                <label class="filter-chip">
+                    <input type="radio" name="source" value="GUARDIAN" hidden>
+                    <span class="dot dot--guardian"></span>The Guardian
+                </label>
+                <label class="filter-chip">
+                    <input type="radio" name="source" value="GNEWS" hidden>
+                    <span class="dot dot--gnews"></span>GNews
+                </label>
+                <label class="filter-chip">
+                    <input type="radio" name="source" value="REDDIT" hidden>
+                    <span class="dot dot--reddit"></span>Reddit
+                </label>
+            </div>
+        </div>
+
+        <div class="sidebar__section">
+            <h4 class="sidebar__title">Category</h4>
+            <div class="filter-group" id="categoryFilters">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+            </div>
+        </div>
+
+        <button id="clearFilters" class="btn btn--ghost btn--full">✕ Clear filters</button>
+    </aside>
+
+    <!-- ── MAIN FEED ── -->
+    <main class="feed">
+        <div class="feed__bar">
+            <span id="totalCount" class="feed__count">Loading...</span>
+            <span id="activeFiltersLabel" class="feed__active-filters"></span>
+        </div>
+
+        <div id="newsGrid" class="news-grid"></div>
+
+        <div id="pagination" class="pagination"></div>
+    </main>
 
 </div>
 
-<!-- JS -->
+<script th:src="@{/js/auth.js}"></script>
 <script th:src="@{/js/main.js}" defer></script>
 </body>
 </html>

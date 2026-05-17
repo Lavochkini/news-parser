@@ -1,16 +1,11 @@
-package com.lake_team.fistserios.controller.rest;/*
-  @author Bogdan
-  @project fistserios
-  @class UserController
-  @version 1.0.0
-  @since 28.08.2025 - 21.06
-*/
+package com.lake_team.fistserios.controller.rest;
 
-import com.lake_team.fistserios.model.User;
+import com.lake_team.fistserios.security.JwtUtil;
+import com.lake_team.fistserios.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.lake_team.fistserios.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,78 +13,66 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
-
-    public AuthController(UserService userService){
-        this.userService = userService;
-    }
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
+        String email    = body.get("email");
         String password = body.get("password");
 
         return userService.login(email, password)
-                .map(user -> ResponseEntity.ok(Map.of(
-                        "status", "success",
-                        "username", user.getUsername(),
-                        "email", user.getEmail()
-                )))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("status", "error")));
+                .map(user -> {
+                    String token = jwtUtil.generateToken(user);
+                    return ResponseEntity.ok(Map.of(
+                            "token",    token,
+                            "userId",   user.getId(),
+                            "username", user.getUsername(),
+                            "email",    user.getEmail(),
+                            "role",     user.getRole().name()
+                    ));
+                })
+                .orElseGet(() -> ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid email or password")));
     }
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> body) {
         String username = body.get("username");
-        String email = body.get("email");
+        String email    = body.get("email");
         String password = body.get("password");
 
         List<Map<String, String>> errors = new ArrayList<>();
 
         if (userService.ifUserExistByEmail(email)) {
-            errors.add(Map.of(
-                    "field", "email",
-                    "message", "Registration failed: Email is used"
-            ));
+            errors.add(Map.of("field", "email", "message", "Email is already taken"));
         }
-
         if (userService.ifUserExistByUsername(username)) {
-            errors.add(Map.of(
-                    "field", "username",
-                    "message", "Registration failed: Username is used"
-            ));
+            errors.add(Map.of("field", "username", "message", "Username is already taken"));
         }
-
         if (!errors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    Map.of(
-                            "status", "error",
-                            "errors", errors
-                    )
-            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errors", errors));
         }
 
         try {
-            User savedUser = userService.registerUser(username, email, password);
+            var savedUser = userService.registerUser(username, email, password);
+            String token  = jwtUtil.generateToken(savedUser);
 
-            // Повертаємо JSON
-            Map<String, Object> response = Map.of(
-                    "status", "success",
-                    "message", "User registered successfully",
-                    "userId", savedUser.getId()
-            );
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "token",    token,
+                    "userId",   savedUser.getId(),
+                    "username", savedUser.getUsername(),
+                    "email",    savedUser.getEmail(),
+                    "role",     savedUser.getRole().name()
+            ));
         } catch (Exception e) {
-            Map<String, Object> response = Map.of(
-                    "status", "error",
-                    "message", "Registration failed: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
     }
 }

@@ -1,17 +1,13 @@
 package com.lake_team.fistserios.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(
-        name = "news",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"url"})
-        }
-)
+@Document(collection = "news")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,32 +18,29 @@ import java.time.LocalDateTime;
 public class NewsItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, length = 500)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "TEXT")
     private String fullContent;
 
-    @Column(nullable = false, unique = true, length = 1000)
+    @Indexed(unique = true)
     private String url;
 
-    @Column(length = 2000)
     private String imageUrl;
 
     private LocalDateTime publishedAt;
 
     private String source;
 
-    @Column(length = 100)
+    @Indexed
     private String category;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Indexed
     private NewsSourceType sourceType;
+
+    // Мітка з датасету: "TRUE" або "FAKE" (null для живих новин)
+    private String datasetLabel;
 }

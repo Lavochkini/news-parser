@@ -6,16 +6,18 @@ import com.lake_team.fistserios.model.NewsSourceType;
 import com.lake_team.fistserios.model.news_api.NewsApiArticle;
 import com.lake_team.fistserios.model.news_api.NewsApiResponse;
 import com.lake_team.fistserios.repository.NewsRepository;
-import com.lake_team.fistserios.repository.NewsSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +40,7 @@ public class NewsApiService {
     private final NewsRepository newsRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final MongoTemplate mongoTemplate;
 
     @Value("${news_api.key}")
     private String apiKey;
@@ -44,27 +48,49 @@ public class NewsApiService {
     @Value("${news_api.url}")
     private String baseUrl;
 
-    @Cacheable(value = "newsPage", key = "#page + '-' + #size + '-' + #category + '-' + #sourceType")
-    public Page<NewsItem> getNewsPage(int page, int size, String category, NewsSourceType sourceType) {
-        Specification<NewsItem> spec = Specification
-                .where(NewsSpecification.hasCategory(category))
-                .and(NewsSpecification.hasSourceType(sourceType));
-        return newsRepository.findAll(spec, PageRequest.of(page, size, Sort.by("publishedAt").descending()));
+    @Cacheable(value = "newsPage", key = "#page + '-' + #size + '-' + #category + '-' + #sourceType + '-' + #search")
+    public Page<NewsItem> getNewsPage(int page, int size, String category, NewsSourceType sourceType, String search) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("publishedAt").descending());
+
+        List<Criteria> filters = new ArrayList<>();
+
+        if (category != null && !category.isBlank()) {
+            filters.add(Criteria.where("category").regex(category, "i"));
+        }
+        if (sourceType != null) {
+            filters.add(Criteria.where("sourceType").is(sourceType));
+        }
+        if (search != null && !search.isBlank()) {
+            filters.add(new Criteria().orOperator(
+                    Criteria.where("title").regex(search, "i"),
+                    Criteria.where("description").regex(search, "i"),
+                    Criteria.where("fullContent").regex(search, "i")
+            ));
+        }
+
+        Query query = new Query().with(pageable);
+        if (!filters.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(filters));
+        }
+
+        long total = mongoTemplate.count(Query.of(query).limit(-1).skip(-1), NewsItem.class);
+        List<NewsItem> items = mongoTemplate.find(query, NewsItem.class);
+        return new PageImpl<>(items, pageable, total);
     }
 
     @Cacheable(value = "newsById", key = "#id")
-    public ResponseEntity<NewsItem> getById(Long id) {
+    public ResponseEntity<NewsItem> getById(String id) {
         return newsRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    public List<NewsItem> getAllNews() {
-        return newsRepository.findAll();
-    }
-
     public List<String> getAvailableCategories() {
-        return newsRepository.findDistinctCategories();
+        return mongoTemplate.findDistinct("category", NewsItem.class, String.class)
+                .stream()
+                .filter(c -> c != null && !c.isBlank())
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     @CacheEvict(value = {"newsPage", "newsById"}, allEntries = true)

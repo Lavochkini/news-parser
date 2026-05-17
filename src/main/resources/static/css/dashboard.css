@@ -1,0 +1,181 @@
+/* ═══════════════════════════════════════
+   DASHBOARD LAYOUT
+═══════════════════════════════════════ */
+.dash-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.dash-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.dash-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+/* ═══════════════════════════════════════
+   STAT CARDS
+═══════════════════════════════════════ */
+.dash-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stat-card--accent {
+    border-color: var(--accent);
+    background: rgba(88, 166, 255, 0.05);
+}
+
+.stat-card__value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.stat-card--accent .stat-card__value {
+    color: var(--accent);
+}
+
+.stat-card__label {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════
+   LAYER BARS
+═══════════════════════════════════════ */
+.layer-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.layer-bar-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+}
+
+.layer-bar-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+.layer-bar-track {
+    height: 10px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.layer-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.layer-bar-fill--linguistic  { background: #7c3aed; }
+.layer-bar-fill--crosssource { background: var(--accent); }
+.layer-bar-fill--factcheck   { background: #059669; }
+
+.layer-bar-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+}
+
+/* ═══════════════════════════════════════
+   CHART GRID
+═══════════════════════════════════════ */
+.dash-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.dash-grid--2 { grid-template-columns: 1fr 1fr; }
+
+.chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.chart-card__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 20px;
+}
+
+/* ═══════════════════════════════════════
+   HEDGE WORDS
+═══════════════════════════════════════ */
+.hedge-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hedge-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.hedge-chip__count {
+    background: rgba(88,166,255,.15);
+    color: var(--accent);
+    border-radius: 99px;
+    padding: 1px 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 900px) {
+    .dash-cards      { grid-template-columns: repeat(2, 1fr); }
+    .dash-grid--2    { grid-template-columns: 1fr; }
+    .layer-bar-row   { grid-template-columns: 100px 1fr 40px; }
+}
+
+@media (max-width: 520px) {
+    .dash-cards { grid-template-columns: 1fr 1fr; }
+    .dash-page  { padding: 16px 12px 48px; }
+}

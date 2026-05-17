@@ -68,8 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const result = await response.json();
 
-            if (response.ok && result.status === "success") {
-                window.location.href = "/login";
+            if (response.ok && result.token) {
+                Auth.save(result);
+                window.location.href = "/main";
             } else {
                 confirmPasswordError.textContent = result.message || "Registration failed";
             }

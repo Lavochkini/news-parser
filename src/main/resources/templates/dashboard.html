@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsFeed — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__title">NewsFeed</span>
+    </div>
+    <nav class="navbar__nav" style="margin-left:auto;gap:12px;display:flex;align-items:center">
+        <a href="/main"      class="btn btn--ghost">News Feed</a>
+        <a href="/dashboard" class="btn btn--primary">Dashboard</a>
+        <span id="navUser"></span>
+    </nav>
+</header>
+
+<div class="dash-page">
+
+    <!-- ── Stat cards ── -->
+    <div class="dash-cards">
+        <div class="stat-card">
+            <div class="stat-card__value" id="totalArticles">—</div>
+            <div class="stat-card__label">Total Articles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__value" id="totalAnalyzed">—</div>
+            <div class="stat-card__label">Analyzed</div>
+        </div>
+        <div class="stat-card stat-card--accent">
+            <div class="stat-card__value" id="avgScore">—</div>
+            <div class="stat-card__label">Avg Credibility Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__value" id="analyzedPct">—</div>
+            <div class="stat-card__label">Coverage</div>
+        </div>
+    </div>
+
+    <!-- ── Layer averages ── -->
+    <div class="dash-section">
+        <h2 class="dash-title">Score by Layer</h2>
+        <div class="layer-bars" id="layerBars"></div>
+    </div>
+
+    <!-- ── Charts row 1 ── -->
+    <div class="dash-grid dash-grid--2">
+        <div class="chart-card">
+            <h3 class="chart-card__title">Credibility Distribution</h3>
+            <canvas id="credChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3 class="chart-card__title">Sentiment Breakdown</h3>
+            <canvas id="sentimentChart"></canvas>
+        </div>
+    </div>
+
+    <!-- ── Charts row 2 ── -->
+    <div class="dash-grid dash-grid--2">
+        <div class="chart-card">
+            <h3 class="chart-card__title">Readability Levels</h3>
+            <canvas id="readabilityChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3 class="chart-card__title">Source Reputation</h3>
+            <canvas id="reputationChart"></canvas>
+        </div>
+    </div>
+
+    <!-- ── Top domains ── -->
+    <div class="dash-section">
+        <h2 class="dash-title">Avg Credibility Score by Domain</h2>
+        <canvas id="domainChart" style="max-height:320px"></canvas>
+    </div>
+
+    <!-- ── Top hedge words ── -->
+    <div class="dash-section">
+        <h2 class="dash-title">Most Common Hedge Words</h2>
+        <div class="hedge-list" id="hedgeList"></div>
+    </div>
+
+</div>
+
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/dashboard.js}" defer></script>
+</body>
+</html>
