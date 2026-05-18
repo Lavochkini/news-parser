@@ -10,26 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * SecurityConfig
- *
- * Три зони доступу:
- *
- *   PUBLIC  — будь-хто, токен не потрібен
- *     /auth/**        реєстрація і логін
- *     /news/**        читання новин (публічно)
- *     /main /login /register — Thymeleaf сторінки
- *     /css/** /js/** /images/**
- *
- *   ADMIN   — тільки юзери з роллю ADMIN
- *     /admin/**
- *
- *   AUTHENTICATED — будь-який авторизований юзер
- *     все інше (наприклад /users/**)
- *
- * SessionCreationPolicy.STATELESS — сервер не зберігає сесії.
- * Кожен запит аутентифікується заново через JWT токен.
- */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -50,9 +30,11 @@ public class SecurityConfig {
                     "/news/**",
                     "/analysis/**",
                     "/api/dashboard/**",
-                    "/", "/main", "/login", "/register", "/dashboard",
+                    "/api/dataset/**",
+                    "/", "/main", "/login", "/register", "/dashboard", "/my-dashboard",
                     "/css/**", "/js/**", "/images/**"
                 ).permitAll()
+                .requestMatchers("/api/user/**").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

@@ -6,16 +6,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Map;
 
-/**
- * Аналіз тональності тексту на основі лексикону AFINN-111.
- *
- * Кожне слово лексикону має оцінку від -5 (дуже негативне)
- * до +5 (дуже позитивне). Сума оцінок нормалізується до [-1.0, +1.0].
- *
- * Результат:
- *   sentimentScore  — нормалізований: -1.0 (негатив) .. +1.0 (позитив)
- *   sentimentLabel  — POSITIVE / NEUTRAL / NEGATIVE
- */
 @Component
 public class SentimentAnalyzer {
 

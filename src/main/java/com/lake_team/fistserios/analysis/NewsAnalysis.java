@@ -27,6 +27,7 @@ public class NewsAnalysis {
     private List<String> hedgeWordsFound;
     private List<String> clickbaitIndicators;
     private List<String> emotionalWordsFound;
+    private List<String> manipulationIndicators;
     private List<String> conspiracyIndicators;
 
     // ── Шар 2: Крос-перевірка (0–35) ──
@@ -67,6 +68,10 @@ public class NewsAnalysis {
     private int    wordCount;
     private double avgWordsPerSentence;
     private double avgSyllablesPerWord;
+
+    // Ручний аналіз — збережено ким і коли
+    private String analyzedByUsername;   // null для авто-batch
+    private boolean isManual;            // true якщо запущено вручну
 
     // Людський опис результату аналізу
     private String reasoning;

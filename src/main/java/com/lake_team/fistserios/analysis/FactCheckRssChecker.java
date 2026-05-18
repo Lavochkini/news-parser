@@ -15,18 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * Шукає теми статті в RSS-стрічках Snopes та PolitiFact.
- *
- * Оскільки більшість новин не проходить факт-чек — відсутність
- * у стрічці є нейтральним результатом (не мінусом).
- *
- * Score (0–8):
- *   Не знайдено              → 6  (нейтрально)
- *   Знайдено, рейтинг TRUE   → 8
- *   Знайдено, без рейтингу   → 4  (був перевірений, але незрозуміло як)
- *   Знайдено, рейтинг FALSE  → 0
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

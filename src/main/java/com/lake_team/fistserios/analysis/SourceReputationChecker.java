@@ -7,16 +7,6 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Оцінює довіру до джерела на основі домену статті.
- * Методологія: Media Bias / AllSides domain reputation tiers.
- *
- * Score (0–12):
- *   HIGH    → 12   відомі авторитетні видання / офіційні організації
- *   GOOD    → 9    якісні ЗМІ з редакційними стандартами
- *   UNKNOWN → 5    невідомий домен
- *   LOW     → 0    відомі ненадійні / фейкові джерела
- */
 @Component
 public class SourceReputationChecker {
 

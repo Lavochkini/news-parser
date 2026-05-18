@@ -17,15 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Крос-перевірка через пошукові ендпоінти існуючих API.
- *
- * Витягує ключові слова із заголовку статті і шукає тему в
- * NewsAPI, Guardian та GNews. Кількість джерел що підтвердили
- * тему визначає score (0–35).
- *
- * Score:  0 джерел → 0 | 1 → 10 | 2 → 22 | 3 → 35
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

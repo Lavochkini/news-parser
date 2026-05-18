@@ -3,22 +3,6 @@ package com.lake_team.fistserios.analysis;
 import com.lake_team.fistserios.model.NewsItem;
 import org.springframework.stereotype.Component;
 
-/**
- * Оцінює читабельність тексту за формулою Flesch Reading Ease.
- *
- * Формула:
- *   score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words)
- *
- * Шкала:
- *   90–100  — дуже легко (дитячий текст)
- *   60–70   — норма для новин
- *   30–50   — складно (академічний текст)
- *   0–30    — дуже складно
- *
- * Для аналізу правдивості:
- *   Маніпулятивні матеріали часто або надто спрощені (>85)
- *   або навмисно складні (<30). Обидва краї підозрілі.
- */
 @Component
 public class ReadabilityAnalyzer {
 

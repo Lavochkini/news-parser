@@ -19,16 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Парсить пости з Reddit (без API ключа).
- *
- * Суbreddit-и:
- *   r/news        — новини США, зазвичай якісні джерела
- *   r/worldnews   — міжнародні новини
- *   r/conspiracy  — конспірологія, часто ненадійні домени
- *
- * Reddit вимагає User-Agent у заголовку, інакше повертає 429.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j

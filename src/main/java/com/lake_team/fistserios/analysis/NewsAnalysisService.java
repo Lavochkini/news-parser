@@ -1,6 +1,7 @@
 package com.lake_team.fistserios.analysis;
 
 import com.lake_team.fistserios.model.NewsItem;
+import com.lake_team.fistserios.model.NewsSourceType;
 import com.lake_team.fistserios.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +80,20 @@ public class NewsAnalysisService {
         return analysisRepository.findByNewsItemId(newsItemId);
     }
 
+    public List<NewsAnalysis> getByUsername(String username) {
+        return analysisRepository.findAllByAnalyzedByUsernameOrderByAnalyzedAtDesc(username);
+    }
+
+    /**
+     * Ручний аналіз — запускається користувачем з вибором методів.
+     * Завжди перезаписує попередній результат.
+     */
+    public NewsAnalysis analyzeManual(String newsItemId, String username, AnalysisOptions options) {
+        analysisRepository.findByNewsItemId(newsItemId)
+                .ifPresent(a -> analysisRepository.deleteById(a.getId()));
+        return runAnalysis(newsItemId, username, options);
+    }
+
     @Async
     public CompletableFuture<Void> forceReanalyzeAllAsync() {
         log.info("Force batch: clearing all analyses...");
@@ -88,28 +103,57 @@ public class NewsAnalysisService {
 
     // ─────────────────────────────────────────────
     private NewsAnalysis runAnalysis(String newsItemId) {
+        return runAnalysis(newsItemId, null, AnalysisOptions.all());
+    }
+
+    private NewsAnalysis runAnalysis(String newsItemId, String username, AnalysisOptions opts) {
         NewsItem item = newsRepository.findById(newsItemId)
                 .orElseThrow(() -> new IllegalArgumentException("NewsItem not found: " + newsItemId));
 
-        LinguisticResult              linguistic   = linguisticAnalyzer.analyze(item);
-        CrossSourceResult             crossSource  = crossSourceAnalyzer.analyze(item);
-        FactCheckLayerResult          factCheck    = factCheckAnalyzer.analyze(item);
-        SentimentAnalyzer.SentimentResult sentiment  = sentimentAnalyzer.analyze(item);
-        ReadabilityAnalyzer.ReadabilityResult readability = readabilityAnalyzer.analyze(item);
+        // ── Шар 1: Лінгвістика ──
+        LinguisticResult linguistic = opts.runLinguistic()
+                ? linguisticAnalyzer.analyze(item)
+                : emptyLinguistic();
+
+        // ── Шар 2: CrossSource ──
+        boolean isDataset = NewsSourceType.DATASET.equals(item.getSourceType());
+        CrossSourceResult crossSource;
+        if (!opts.runCrossSource() || isDataset) {
+            crossSource = CrossSourceResult.builder().score(0).sourcesConfirmed(0)
+                    .confirmedSources(List.of())
+                    .keywordsUsed(isDataset ? "skipped-dataset" : "skipped-by-user").build();
+        } else {
+            crossSource = crossSourceAnalyzer.analyze(item);
+        }
+
+        // ── Шар 3: FactCheck ──
+        FactCheckLayerResult factCheck = opts.runFactCheck()
+                ? factCheckAnalyzer.analyze(item)
+                : emptyFactCheck();
+
+        // ── Додаткові метрики ──
+        SentimentAnalyzer.SentimentResult sentiment = opts.runSentiment()
+                ? sentimentAnalyzer.analyze(item)
+                : new SentimentAnalyzer.SentimentResult(0.0, "N/A", 0, 0);
+        ReadabilityAnalyzer.ReadabilityResult readability = opts.runReadability()
+                ? readabilityAnalyzer.analyze(item)
+                : new ReadabilityAnalyzer.ReadabilityResult(0, "N/A", 0, 0, 0.0, 0.0);
 
         boolean conspiracyDetected = !linguistic.getConspiracyIndicators().isEmpty();
-
         int effectiveCrossSourceScore = conspiracyDetected ? 0 : crossSource.getScore();
         int rawScore = linguistic.getScore() + effectiveCrossSourceScore + factCheck.getScore();
         int credibilityScore = conspiracyDetected ? Math.min(rawScore, 40) : rawScore;
 
         NewsAnalysis analysis = NewsAnalysis.builder()
                 .newsItemId(newsItemId)
+                .analyzedByUsername(username)
+                .isManual(username != null)
                 .credibilityScore(credibilityScore)
                 .linguisticScore(linguistic.getScore())
                 .hedgeWordsFound(linguistic.getHedgeWordsFound())
                 .clickbaitIndicators(linguistic.getClickbaitIndicators())
                 .emotionalWordsFound(linguistic.getEmotionalWordsFound())
+                .manipulationIndicators(linguistic.getManipulationIndicators())
                 .conspiracyIndicators(linguistic.getConspiracyIndicators())
                 .crossSourceScore(effectiveCrossSourceScore)
                 .sourcesConfirmed(crossSource.getSourcesConfirmed())
@@ -160,6 +204,10 @@ public class NewsAnalysisService {
             notes.add("Contains emotionally charged language: " +
                     String.join(", ", linguistic.getEmotionalWordsFound()));
         }
+        if (!linguistic.getManipulationIndicators().isEmpty()) {
+            notes.add("Political manipulation patterns detected: " +
+                    String.join(", ", linguistic.getManipulationIndicators()));
+        }
         if (!linguistic.getConspiracyIndicators().isEmpty()) {
             notes.add("Conspiracy patterns detected (cross-source score overridden to 0, score capped at 40): " +
                     String.join(", ", linguistic.getConspiracyIndicators()));
@@ -185,5 +233,20 @@ public class NewsAnalysisService {
             return "No significant credibility issues detected.";
         }
         return String.join(". ", notes) + ".";
+    }
+
+    private LinguisticResult emptyLinguistic() {
+        return LinguisticResult.builder()
+                .score(0).hedgeWordsFound(List.of()).clickbaitIndicators(List.of())
+                .emotionalWordsFound(List.of()).manipulationIndicators(List.of())
+                .conspiracyIndicators(List.of()).build();
+    }
+
+    private FactCheckLayerResult emptyFactCheck() {
+        return FactCheckLayerResult.builder()
+                .score(0).sourceReputationScore(0).sourceDomain("").sourceReputationTier("N/A")
+                .claimBusterScore(0).claimBusterRaw(0).rssCheckScore(0)
+                .rssMatchedTitle(null).rssMatchSource(null).claimsFound(0)
+                .claims(List.of()).verdict("Fact-check skipped").build();
     }
 }

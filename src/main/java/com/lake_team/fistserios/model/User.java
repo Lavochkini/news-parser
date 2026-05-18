@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Document(collection = "users")
 @EqualsAndHashCode
@@ -34,6 +36,8 @@ public class User {
     private String password;
 
     private Role role = Role.USER;
+
+    private Set<String> favoriteNewsIds = new HashSet<>();
 
     @CreatedDate
     private LocalDateTime createdAt;

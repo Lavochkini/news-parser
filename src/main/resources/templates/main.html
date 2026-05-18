@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NewsFeed</title>
+    <title>Fistserious</title>
     <link rel="stylesheet" th:href="@{/css/main.css}" />
 </head>
 <body>
@@ -13,7 +13,7 @@
     <div class="navbar__brand">
         <button id="filterToggle" class="filter-toggle-btn" title="Filters">☰</button>
         <span class="navbar__icon"></span>
-        <span class="navbar__title">NewsFeed</span>
+        <span class="navbar__title">Fistserious</span>
     </div>
 
     <div class="navbar__search">
@@ -26,7 +26,8 @@
     </div>
 
     <nav class="navbar__nav" style="gap:12px">
-        <a href="/dashboard" class="btn btn--ghost">Dashboard</a>
+        <a href="/dashboard"    class="btn btn--ghost">Дашборд</a>
+        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
         <div id="navUser" style="display:flex;align-items:center;gap:8px"></div>
     </nav>
 </header>
@@ -62,6 +63,10 @@
                     <input type="radio" name="source" value="REDDIT" hidden>
                     <span class="dot dot--reddit"></span>Reddit
                 </label>
+                <label class="filter-chip">
+                    <input type="radio" name="source" value="DATASET" hidden>
+                    <span class="dot dot--dataset"></span>Датасет
+                </label>
             </div>
         </div>
 
@@ -89,6 +94,145 @@
         <div id="pagination" class="pagination"></div>
     </main>
 
+</div>
+
+<!-- ═══════════════ ARTICLE MODAL ═══════════════ -->
+<div class="modal-overlay" id="articleModal" onclick="modalOverlayClick(event)">
+    <div class="modal" id="modalContent">
+
+        <!-- Заголовок -->
+        <div class="modal__header">
+            <div class="modal__badges" id="modalBadges"></div>
+            <button class="modal__close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div class="modal__body">
+            <!-- Зображення -->
+            <img class="modal__img" id="modalImg" src="" alt="" style="display:none">
+
+            <!-- Мета інформація -->
+            <h2 class="modal__title" id="modalTitle"></h2>
+            <div class="modal__meta-row">
+                <span class="modal__source" id="modalSource"></span>
+                <span class="modal__date"   id="modalDate"></span>
+            </div>
+            <p class="modal__desc" id="modalDesc"></p>
+            <div class="modal__full-text" id="modalFullText"></div>
+
+            <!-- Дії -->
+            <div class="modal__actions">
+                <button class="star-btn" id="starBtn" onclick="toggleFavorite()">☆</button>
+                <a class="btn btn--outline" id="modalReadLink" href="#" target="_blank">Читати оригінал →</a>
+            </div>
+
+            <!-- Аналіз правдивості -->
+            <div class="modal__analysis-section">
+                <h3 class="modal__section-title">Аналіз правдивості</h3>
+
+                <div class="method-list">
+                    <!-- Метод 1 -->
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optLinguistic" checked>
+                            <span class="method-item__name">Лінгвістичний аналіз</span>
+                            <span class="method-item__score">0–35 балів</span>
+                        </label>
+                        <div class="method-item__desc">
+                            Аналізує текст без зовнішніх API. Штрафи:
+                            <ul>
+                                <li>Хедж-слова (<em>allegedly, reportedly, sources say...</em>) → −3 за слово (макс −15)</li>
+                                <li>Клікбейт у заголовку (<em>shocking, exposed, bombshell...</em>) → −5 за патерн (макс −10)</li>
+                                <li>Емоційна лексика (<em>catastrophe, outrage, rigged...</em>) → −2 за слово (макс −10)</li>
+                                <li>Маніпулятивні патерни (<em>fake news, caught red-handed...</em>) → −8 за патерн (макс −16)</li>
+                                <li>Конспірологія (<em>false flag, deep state, flat earth...</em>) → −20 фіксовано + cap 40 для всього score</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Метод 2 -->
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optCrossSource" checked>
+                            <span class="method-item__name">Перехресна перевірка</span>
+                            <span class="method-item__score">0–35 балів</span>
+                        </label>
+                        <div class="method-item__desc">
+                            Витягує ключові слова із заголовку і шукає тему у трьох API:
+                            <strong>NewsAPI</strong>, <strong>The Guardian</strong>, <strong>GNews</strong>.
+                            Підтвердження: 0 джерел → 0 | 1 → 10 | 2 → 22 | 3 → 35.
+                            Поріг: мінімум 3 результати щоб уникнути рахування статей-спростувань.
+                            <em>Автоматично вимикається для статей з датасету (2016-2017 рр.).</em>
+                        </div>
+                    </div>
+
+                    <!-- Метод 3 -->
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optFactCheck" checked>
+                            <span class="method-item__name">Факт-чекінг</span>
+                            <span class="method-item__score">0–30 балів</span>
+                        </label>
+                        <div class="method-item__desc">
+                            Три підшари:
+                            <ul>
+                                <li><strong>Репутація домену</strong> (0–12): reuters.com, bbc.com → HIGH(12); nytimes.com → GOOD(9); невідомий → UNKNOWN(5); infowars.com → LOW(0). Всі .gov і .edu → HIGH.</li>
+                                <li><strong>ClaimBuster</strong> (0–10): власна regex-реалізація. Рахує кількість числових тверджень, абсолютів (never/always), дієслів заяв (claimed/confirmed). 0–1 сигнал → 10; 2–3 → 6; 4+ → 2.</li>
+                                <li><strong>RSS-перевірка</strong> (0–8): порівняння з RSS-стрічками Snopes та PolitiFact. TRUE → 8; не знайдено → 6; FALSE → 0.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Метод 4 -->
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optSentiment" checked>
+                            <span class="method-item__name">Аналіз тональності</span>
+                            <span class="method-item__score">додатково</span>
+                        </label>
+                        <div class="method-item__desc">
+                            Лексикон AFINN-111 (~150 слів). Кожному слову присвоєно оцінку від −5 до +5.
+                            Нормалізований результат: −1.0 (дуже негативний) ... +1.0 (дуже позитивний).
+                            Мітки: POSITIVE (&gt;0.1) / NEUTRAL / NEGATIVE (&lt;−0.1).
+                            <em>Не впливає на credibility score.</em>
+                        </div>
+                    </div>
+
+                    <!-- Метод 5 -->
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optReadability" checked>
+                            <span class="method-item__name">Читабельність</span>
+                            <span class="method-item__score">додатково</span>
+                        </label>
+                        <div class="method-item__desc">
+                            Формула Flesch Reading Ease:
+                            <code>206.835 − 1.015×(слів/речень) − 84.6×(складів/слів)</code>.
+                            Рівні: VERY_EASY (90–100) → EASY → STANDARD → DIFFICULT → VERY_DIFFICULT (0–30).
+                            <em>Не впливає на credibility score.</em>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn--primary btn--analyze" id="analyzeBtn" onclick="runManualAnalysis()">
+                    Аналізувати
+                </button>
+
+                <!-- Результати -->
+                <div id="analysisResults" style="display:none">
+                    <div class="score-display">
+                        <div class="score-display__circle" id="scoreCircle">
+                            <span id="scoreValue">—</span>
+                            <small>/100</small>
+                        </div>
+                        <div class="score-display__label" id="scoreLabel"></div>
+                    </div>
+                    <div class="score-layers" id="scoreLayers"></div>
+                    <div class="score-details" id="scoreDetails"></div>
+                    <div class="score-reasoning" id="scoreReasoning"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script th:src="@{/js/auth.js}"></script>

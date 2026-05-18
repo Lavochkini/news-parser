@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NewsFeed — Dashboard</title>
+    <title>Fistserious — Дашборд</title>
     <link rel="stylesheet" th:href="@{/css/main.css}" />
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -12,11 +12,12 @@
 
 <header class="navbar">
     <div class="navbar__brand">
-        <span class="navbar__title">NewsFeed</span>
+        <span class="navbar__title">Fistserious</span>
     </div>
     <nav class="navbar__nav" style="margin-left:auto;gap:12px;display:flex;align-items:center">
-        <a href="/main"      class="btn btn--ghost">News Feed</a>
-        <a href="/dashboard" class="btn btn--primary">Dashboard</a>
+        <a href="/main"         class="btn btn--ghost">Стрічка новин</a>
+        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
+        <a href="/dashboard"    class="btn btn--primary">Дашборд</a>
         <span id="navUser"></span>
     </nav>
 </header>
@@ -27,36 +28,36 @@
     <div class="dash-cards">
         <div class="stat-card">
             <div class="stat-card__value" id="totalArticles">—</div>
-            <div class="stat-card__label">Total Articles</div>
+            <div class="stat-card__label">Всього статей</div>
         </div>
         <div class="stat-card">
             <div class="stat-card__value" id="totalAnalyzed">—</div>
-            <div class="stat-card__label">Analyzed</div>
+            <div class="stat-card__label">Проаналізовано</div>
         </div>
         <div class="stat-card stat-card--accent">
             <div class="stat-card__value" id="avgScore">—</div>
-            <div class="stat-card__label">Avg Credibility Score</div>
+            <div class="stat-card__label">Середній бал правдивості</div>
         </div>
         <div class="stat-card">
             <div class="stat-card__value" id="analyzedPct">—</div>
-            <div class="stat-card__label">Coverage</div>
+            <div class="stat-card__label">Охоплення</div>
         </div>
     </div>
 
     <!-- ── Layer averages ── -->
     <div class="dash-section">
-        <h2 class="dash-title">Score by Layer</h2>
+        <h2 class="dash-title">Середні бали по шарах</h2>
         <div class="layer-bars" id="layerBars"></div>
     </div>
 
     <!-- ── Charts row 1 ── -->
     <div class="dash-grid dash-grid--2">
         <div class="chart-card">
-            <h3 class="chart-card__title">Credibility Distribution</h3>
+            <h3 class="chart-card__title">Розподіл балів правдивості</h3>
             <canvas id="credChart"></canvas>
         </div>
         <div class="chart-card">
-            <h3 class="chart-card__title">Sentiment Breakdown</h3>
+            <h3 class="chart-card__title">Тональність статей</h3>
             <canvas id="sentimentChart"></canvas>
         </div>
     </div>
@@ -64,27 +65,218 @@
     <!-- ── Charts row 2 ── -->
     <div class="dash-grid dash-grid--2">
         <div class="chart-card">
-            <h3 class="chart-card__title">Readability Levels</h3>
+            <h3 class="chart-card__title">Рівні читабельності</h3>
             <canvas id="readabilityChart"></canvas>
         </div>
         <div class="chart-card">
-            <h3 class="chart-card__title">Source Reputation</h3>
+            <h3 class="chart-card__title">Репутація джерел</h3>
             <canvas id="reputationChart"></canvas>
         </div>
     </div>
 
     <!-- ── Top domains ── -->
     <div class="dash-section">
-        <h2 class="dash-title">Avg Credibility Score by Domain</h2>
+        <h2 class="dash-title">Середній бал правдивості по доменах</h2>
         <canvas id="domainChart" style="max-height:320px"></canvas>
     </div>
 
     <!-- ── Top hedge words ── -->
     <div class="dash-section">
-        <h2 class="dash-title">Most Common Hedge Words</h2>
+        <h2 class="dash-title">Найпоширеніші хедж-слова</h2>
         <div class="hedge-list" id="hedgeList"></div>
     </div>
 
+    <!-- ── Search / Filter ── -->
+    <div class="dash-section" id="searchSection">
+        <h2 class="dash-title">Пошук статей</h2>
+
+        <div class="search-filters">
+
+            <!-- Row 1: text search + sort -->
+            <div class="search-row">
+                <div class="search-field search-field--grow">
+                    <label class="search-label">Заголовок</label>
+                    <input id="sfSearch" type="text" class="search-input" placeholder="Пошук за заголовком…">
+                </div>
+                <div class="search-field">
+                    <label class="search-label">Сортувати</label>
+                    <select id="sfSort" class="search-select">
+                        <option value="credibility">Правдивість ↓</option>
+                        <option value="credibility_asc">Правдивість ↑</option>
+                        <option value="linguistic">Лінгвістика ↓</option>
+                        <option value="crossSource">Перехресна перевірка ↓</option>
+                        <option value="factCheck">Факт-чекінг ↓</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2: score range -->
+            <div class="search-row">
+                <div class="search-field">
+                    <label class="search-label">Бал від</label>
+                    <input id="sfScoreMin" type="number" class="search-input search-input--sm" min="0" max="100" value="0">
+                </div>
+                <div class="search-field">
+                    <label class="search-label">до</label>
+                    <input id="sfScoreMax" type="number" class="search-input search-input--sm" min="0" max="100" value="100">
+                </div>
+                <div class="search-field">
+                    <label class="search-label">Тип джерела</label>
+                    <select id="sfSourceType" class="search-select">
+                        <option value="">Всі</option>
+                        <option value="NEWS_API">NewsAPI</option>
+                        <option value="GUARDIAN">Guardian</option>
+                        <option value="GNEWS">GNews</option>
+                        <option value="REDDIT">Reddit</option>
+                        <option value="DATASET">Dataset</option>
+                    </select>
+                </div>
+                <div class="search-field">
+                    <label class="search-label">Тональність</label>
+                    <select id="sfSentiment" class="search-select">
+                        <option value="">Всі</option>
+                        <option value="POSITIVE">Позитивна</option>
+                        <option value="NEUTRAL">Нейтральна</option>
+                        <option value="NEGATIVE">Негативна</option>
+                    </select>
+                </div>
+                <div class="search-field">
+                    <label class="search-label">Читабельність</label>
+                    <select id="sfReadability" class="search-select">
+                        <option value="">Всі</option>
+                        <option value="VERY_EASY">Дуже легко</option>
+                        <option value="EASY">Легко</option>
+                        <option value="STANDARD">Стандарт</option>
+                        <option value="DIFFICULT">Складно</option>
+                        <option value="VERY_DIFFICULT">Дуже складно</option>
+                    </select>
+                </div>
+                <div class="search-field">
+                    <label class="search-label">Репутація</label>
+                    <select id="sfReputation" class="search-select">
+                        <option value="">Всі</option>
+                        <option value="HIGH">Висока</option>
+                        <option value="GOOD">Добра</option>
+                        <option value="UNKNOWN">Невідома</option>
+                        <option value="LOW">Низька</option>
+                    </select>
+                </div>
+                <div class="search-field search-field--end">
+                    <button class="btn btn--primary" onclick="runSearch()">Знайти</button>
+                    <button class="btn btn--ghost"   onclick="resetSearch()">Скинути</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="searchResults" style="display:none;margin-top:20px">
+            <div class="search-meta" id="searchMeta"></div>
+            <div class="search-table-wrap">
+                <table class="search-table">
+                    <thead>
+                        <tr>
+                            <th>Заголовок</th>
+                            <th>Джерело</th>
+                            <th class="col-num">Правдивість</th>
+                            <th class="col-num">Лінгвістика</th>
+                            <th class="col-num">Перехресна</th>
+                            <th class="col-num">Факт</th>
+                            <th>Тональність</th>
+                            <th>Читабельність</th>
+                            <th>Репутація</th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchTableBody"></tbody>
+                </table>
+            </div>
+            <div class="search-pagination" id="searchPagination"></div>
+        </div>
+        <div id="searchEmpty" style="display:none" class="personal-list__empty">Нічого не знайдено</div>
+        <div id="searchLoading" style="display:none;text-align:center;padding:24px;color:var(--text-muted)">Завантаження…</div>
+    </div>
+
+</div>
+
+<!-- ═══════════════ ARTICLE MODAL ═══════════════ -->
+<div class="modal-overlay" id="articleModal" onclick="modalOverlayClick(event)">
+    <div class="modal" id="modalContent">
+        <div class="modal__header">
+            <div class="modal__badges" id="modalBadges"></div>
+            <button class="modal__close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal__body">
+            <img class="modal__img" id="modalImg" src="" alt="" style="display:none">
+            <h2 class="modal__title" id="modalTitle"></h2>
+            <div class="modal__meta-row">
+                <span class="modal__source" id="modalSource"></span>
+                <span class="modal__date"   id="modalDate"></span>
+            </div>
+            <p class="modal__desc" id="modalDesc"></p>
+            <div class="modal__full-text" id="modalFullText"></div>
+            <div class="modal__actions">
+                <button class="star-btn" id="starBtn" onclick="toggleFavorite()">☆</button>
+                <a class="btn btn--outline" id="modalReadLink" href="#" target="_blank">Читати оригінал →</a>
+            </div>
+
+            <div class="modal__analysis-section">
+                <h3 class="modal__section-title">Аналіз правдивості</h3>
+                <div class="method-list">
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optLinguistic" checked>
+                            <span class="method-item__name">Лінгвістичний аналіз</span>
+                            <span class="method-item__score">0–35 балів</span>
+                        </label>
+                        <div class="method-item__desc">Хедж-слова (−3), клікбейт (−5), емоційна лексика (−2), маніпуляція (−8), конспірологія (−20 + cap 40).</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optCrossSource" checked>
+                            <span class="method-item__name">Перехресна перевірка</span>
+                            <span class="method-item__score">0–35 балів</span>
+                        </label>
+                        <div class="method-item__desc">Пошук теми у NewsAPI, Guardian, GNews. 0 джерел → 0 | 1 → 10 | 2 → 22 | 3 → 35. Мін. 3 результати для підтвердження.</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optFactCheck" checked>
+                            <span class="method-item__name">Факт-чекінг</span>
+                            <span class="method-item__score">0–30 балів</span>
+                        </label>
+                        <div class="method-item__desc">Репутація домену (0–12) + ClaimBuster regex (0–10) + RSS Snopes/PolitiFact (0–8).</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optSentiment" checked>
+                            <span class="method-item__name">Тональність (AFINN)</span>
+                            <span class="method-item__score">додатково</span>
+                        </label>
+                        <div class="method-item__desc">Лексикон AFINN-111. Оцінка −1.0 … +1.0. Не впливає на credibility score.</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optReadability" checked>
+                            <span class="method-item__name">Читабельність (Flesch)</span>
+                            <span class="method-item__score">додатково</span>
+                        </label>
+                        <div class="method-item__desc"><code>206.835 − 1.015×(слів/речень) − 84.6×(складів/слів)</code>. Не впливає на credibility score.</div>
+                    </div>
+                </div>
+                <button class="btn btn--primary btn--analyze" id="analyzeBtn" onclick="runManualAnalysis()">Аналізувати</button>
+                <div id="analysisResults" style="display:none">
+                    <div class="score-display">
+                        <div class="score-display__circle" id="scoreCircle">
+                            <span id="scoreValue">—</span><small>/100</small>
+                        </div>
+                        <div class="score-display__label" id="scoreLabel"></div>
+                    </div>
+                    <div class="score-layers" id="scoreLayers"></div>
+                    <div class="score-details" id="scoreDetails"></div>
+                    <div class="score-reasoning" id="scoreReasoning"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script th:src="@{/js/auth.js}"></script>

@@ -12,5 +12,6 @@ public class LinguisticResult {
     private final List<String> hedgeWordsFound;
     private final List<String> clickbaitIndicators;
     private final List<String> emotionalWordsFound;
+    private final List<String> manipulationIndicators;
     private final List<String> conspiracyIndicators;
 }

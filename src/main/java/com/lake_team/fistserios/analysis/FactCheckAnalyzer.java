@@ -7,15 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Шар 3: комбінований fact-check з трьох підшарів.
- *
- *   sourceReputation (0–12) — довіра до домену
- *   claimBuster      (0–10) — check-worthiness тексту
- *   rssCheck         (0–8)  — пошук у Snopes / PolitiFact RSS
- *
- *   Разом max = 30
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

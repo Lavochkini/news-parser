@@ -103,6 +103,95 @@ public class DashboardController {
         return stats;
     }
 
+    // ── Пошук статей з фільтрами ──────────────────────────────────
+    @GetMapping("/search")
+    public Map<String, Object> searchArticles(
+            @RequestParam(defaultValue = "0")   int scoreMin,
+            @RequestParam(defaultValue = "100")  int scoreMax,
+            @RequestParam(required = false)      String sourceType,
+            @RequestParam(required = false)      String sentimentLabel,
+            @RequestParam(required = false)      String readabilityLevel,
+            @RequestParam(required = false)      String reputationTier,
+            @RequestParam(required = false)      String search,
+            @RequestParam(defaultValue = "credibility") String sortBy,
+            @RequestParam(defaultValue = "0")   int page,
+            @RequestParam(defaultValue = "20")  int size) {
+
+        // 1. Фільтруємо аналізи (поля з NewsAnalysis)
+        List<NewsAnalysis> filtered = analysisRepository.findAll().stream()
+                .filter(a -> a.getCredibilityScore() >= scoreMin && a.getCredibilityScore() <= scoreMax)
+                .filter(a -> blank(sentimentLabel)   || sentimentLabel.equals(a.getSentimentLabel()))
+                .filter(a -> blank(readabilityLevel) || readabilityLevel.equals(a.getReadabilityLevel()))
+                .filter(a -> blank(reputationTier)   || reputationTier.equals(a.getSourceReputationTier()))
+                .toList();
+
+        // 2. Збагачуємо даними статті + фільтруємо по sourceType і пошуковому запиту
+        String searchLc = blank(search) ? null : search.toLowerCase();
+        List<Map<String, Object>> results = filtered.stream()
+                .map(a -> {
+                    Map<String, Object> dto = new LinkedHashMap<>();
+                    dto.put("newsItemId",       a.getNewsItemId());
+                    dto.put("credibilityScore", a.getCredibilityScore());
+                    dto.put("linguisticScore",  a.getLinguisticScore());
+                    dto.put("crossSourceScore", a.getCrossSourceScore());
+                    dto.put("factCheckScore",   a.getFactCheckScore());
+                    dto.put("sentimentLabel",   a.getSentimentLabel());
+                    dto.put("readabilityLevel", a.getReadabilityLevel());
+                    dto.put("reputationTier",   a.getSourceReputationTier());
+                    dto.put("sourceDomain",     a.getSourceDomain());
+                    dto.put("analyzedAt",       a.getAnalyzedAt());
+                    newsRepository.findById(a.getNewsItemId()).ifPresent(item -> {
+                        dto.put("title",       item.getTitle());
+                        dto.put("source",      item.getSource());
+                        dto.put("sourceType",  item.getSourceType() != null ? item.getSourceType().name() : null);
+                        dto.put("url",         item.getUrl());
+                        dto.put("publishedAt", item.getPublishedAt());
+                        dto.put("category",    item.getCategory());
+                        dto.put("datasetLabel",item.getDatasetLabel());
+                        dto.put("imageUrl",    item.getImageUrl());
+                        dto.put("description", item.getDescription());
+                        dto.put("fullContent", item.getFullContent());
+                    });
+                    return dto;
+                })
+                .filter(dto -> {
+                    if (!blank(sourceType) && !sourceType.equals(dto.get("sourceType"))) return false;
+                    if (searchLc != null) {
+                        Object t = dto.get("title");
+                        if (t == null || !t.toString().toLowerCase().contains(searchLc)) return false;
+                    }
+                    return true;
+                })
+                .sorted(comparator(sortBy))
+                .toList();
+
+        // 3. Пагінація
+        int total     = results.size();
+        int fromIdx   = page * size;
+        int toIdx     = Math.min(fromIdx + size, total);
+        List<Map<String, Object>> pageItems = fromIdx < total ? results.subList(fromIdx, toIdx) : List.of();
+
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("total",      total);
+        resp.put("page",       page);
+        resp.put("size",       size);
+        resp.put("totalPages", (int) Math.ceil((double) total / size));
+        resp.put("results",    pageItems);
+        return resp;
+    }
+
+    private Comparator<Map<String, Object>> comparator(String sortBy) {
+        return switch (sortBy) {
+            case "linguistic"  -> Comparator.comparingInt(m -> -(int) m.getOrDefault("linguisticScore",  0));
+            case "crossSource" -> Comparator.comparingInt(m -> -(int) m.getOrDefault("crossSourceScore", 0));
+            case "factCheck"   -> Comparator.comparingInt(m -> -(int) m.getOrDefault("factCheckScore",   0));
+            case "credibility_asc" -> Comparator.comparingInt(m -> (int) m.getOrDefault("credibilityScore", 0));
+            default            -> Comparator.comparingInt(m -> -(int) m.getOrDefault("credibilityScore", 0));
+        };
+    }
+
+    private boolean blank(String s) { return s == null || s.isBlank(); }
+
     private long bucket(List<NewsAnalysis> list, int from, int to) {
         return list.stream()
                 .filter(a -> a.getCredibilityScore() >= from && a.getCredibilityScore() <= to)

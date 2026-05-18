@@ -3,7 +3,6 @@ package com.lake_team.fistserios.analysis;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Одна перевірена заява, повернута Google Fact Check Tools API */
 @Getter
 @Builder
 public class FactCheckClaim {

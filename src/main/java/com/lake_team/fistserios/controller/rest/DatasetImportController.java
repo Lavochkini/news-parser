@@ -14,12 +14,6 @@ public class DatasetImportController {
 
     private final DatasetImportService datasetImportService;
 
-    /**
-     * POST /api/dataset/import
-     *   ?truePath=C:/data/True.csv
-     *   &fakePath=C:/data/Fake.csv
-     *   &limit=200        (optional, default 200 per file)
-     */
     @PostMapping("/import")
     public ResponseEntity<Map<String, Object>> importDataset(
             @RequestParam String truePath,

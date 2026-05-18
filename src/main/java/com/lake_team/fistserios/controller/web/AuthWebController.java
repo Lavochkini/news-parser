@@ -27,4 +27,7 @@ public class AuthWebController {
 
     @GetMapping("/dashboard")
     public String dashboardPage() { return "dashboard"; }
+
+    @GetMapping("/my-dashboard")
+    public String myDashboardPage() { return "my-dashboard"; }
 }

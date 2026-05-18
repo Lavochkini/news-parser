@@ -225,11 +225,14 @@ function renderCards(articles) {
         return;
     }
 
+    // Зберігаємо статті в глобальному масиві — безпечна альтернатива JSON у onclick
+    window._articles = articles;
+
     newsGrid.innerHTML = articles.map((a, i) => `
-        <article class="news-card" style="animation-delay:${i * 40}ms" onclick="window.open('${escHtml(a.url)}','_blank')">
+        <article class="news-card" style="animation-delay:${i * 40}ms" onclick="openModal(${i})">
             ${a.imageUrl
-                ? `<img class="news-card__img" src="${escHtml(a.imageUrl)}" alt="" loading="lazy" onerror="this.replaceWith(placeholder())">`
-                : `<div class="news-card__img-placeholder"></div>`
+                ? `<img class="news-card__img" src="${escHtml(a.imageUrl)}" alt="" loading="lazy" onerror="this.replaceWith(placeholder('${a.sourceType}'))">`
+                : sourcePlaceholderHtml(a.sourceType, 'news-card__img-placeholder')
             }
             <div class="news-card__body">
                 <div class="news-card__meta">
@@ -242,7 +245,7 @@ function renderCards(articles) {
                 <div class="news-card__footer">
                     <span class="news-card__source">${escHtml(a.source || '')}</span>
                     <a class="news-card__link" href="${escHtml(a.url)}" target="_blank" onclick="event.stopPropagation()">
-                        Read more →
+                        Читати →
                     </a>
                 </div>
             </div>
@@ -327,6 +330,7 @@ function sourceBadge(type) {
         GUARDIAN:  ['badge--guardian', 'Guardian'],
         GNEWS:     ['badge--gnews',    'GNews'],
         REDDIT:    ['badge--reddit',   'Reddit'],
+        DATASET:   ['badge--dataset',  'Датасет'],
     };
     const [cls, label] = map[type] || ['badge--category', type || ''];
     return `<span class="badge ${cls}">${label}</span>`;
@@ -347,12 +351,281 @@ function escHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-function placeholder() {
+function setModalImage(imgEl, imageUrl, sourceType) {
+    const p = SOURCE_PLACEHOLDER[sourceType];
+    // Remove any existing placeholder sibling
+    const prev = imgEl.previousElementSibling;
+    if (prev && prev.classList.contains('img-placeholder')) prev.remove();
+
+    if (imageUrl) {
+        imgEl.src = imageUrl;
+        imgEl.style.display = 'block';
+        imgEl.onerror = () => {
+            imgEl.style.display = 'none';
+            if (p) imgEl.insertAdjacentHTML('beforebegin',
+                sourcePlaceholderHtml(sourceType, 'modal__img-placeholder img-placeholder'));
+        };
+    } else if (p) {
+        imgEl.style.display = 'none';
+        imgEl.insertAdjacentHTML('beforebegin',
+            sourcePlaceholderHtml(sourceType, 'modal__img-placeholder img-placeholder'));
+    } else {
+        imgEl.style.display = 'none';
+    }
+}
+
+const SOURCE_PLACEHOLDER = {
+    REDDIT:  { icon: '🤖', label: 'Reddit',  cls: 'img-placeholder--reddit'  },
+    DATASET: { icon: '🗂️', label: 'Dataset', cls: 'img-placeholder--dataset' },
+};
+
+function sourcePlaceholderHtml(sourceType, extraCls = '') {
+    const p = SOURCE_PLACEHOLDER[sourceType];
+    if (!p) return `<div class="img-placeholder ${extraCls}"></div>`;
+    return `<div class="img-placeholder ${p.cls} ${extraCls}">
+                <span class="img-placeholder__icon">${p.icon}</span>${p.label}
+            </div>`;
+}
+
+function placeholder(sourceType) {
     const el = document.createElement('div');
-    el.className = 'news-card__img-placeholder';
-    el.textContent = '';
+    const p  = SOURCE_PLACEHOLDER[sourceType];
+    el.className = p
+        ? `news-card__img-placeholder img-placeholder ${p.cls}`
+        : 'news-card__img-placeholder';
+    if (p) el.innerHTML = `<span class="img-placeholder__icon">${p.icon}</span>${p.label}`;
     return el;
 }
 
 /* expose goPage globally (used in inline onclick) */
 window.goPage = goPage;
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+let currentArticle = null;
+let userFavorites  = new Set();
+
+// Завантажуємо улюблені при старті
+document.addEventListener('DOMContentLoaded', () => {
+    if (Auth.isLoggedIn()) {
+        fetch('/api/user/favorites', { headers: Auth.getHeaders() })
+            .then(r => r.ok ? r.json() : [])
+            .then(ids => { userFavorites = new Set(ids); })
+            .catch(() => {});
+    }
+});
+
+function openModal(indexOrArticle) {
+    // Приймає або індекс з _articles або об'єкт (виклик із my-dashboard)
+    const article = typeof indexOrArticle === 'number'
+        ? (window._articles || [])[indexOrArticle]
+        : indexOrArticle;
+    if (!article) return;
+    currentArticle = article;
+
+    // Заповнюємо дані
+    document.getElementById('modalBadges').innerHTML =
+        sourceBadge(article.sourceType) +
+        (article.category ? `<span class="badge badge--category">${escHtml(article.category)}</span>` : '');
+
+    const img = document.getElementById('modalImg');
+    setModalImage(img, article.imageUrl, article.sourceType);
+
+    document.getElementById('modalTitle').textContent    = article.title || 'Без заголовку';
+    document.getElementById('modalSource').textContent   = article.source || '';
+    document.getElementById('modalDate').textContent     = formatDate(article.publishedAt);
+    document.getElementById('modalDesc').textContent     = article.description || '';
+    document.getElementById('modalReadLink').href        = article.url || '#';
+
+    const fullEl = document.getElementById('modalFullText');
+    if (article.fullContent && article.fullContent !== article.description) {
+        const text = article.fullContent.length > 1200
+            ? article.fullContent.substring(0, 1200) + '…'
+            : article.fullContent;
+        fullEl.textContent = text;
+        fullEl.style.display = 'block';
+    } else {
+        fullEl.style.display = 'none';
+    }
+
+    // Зірочка
+    updateStarBtn();
+
+    // Скидаємо результати аналізу
+    document.getElementById('analysisResults').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+    document.getElementById('analyzeBtn').textContent = 'Аналізувати';
+
+    // Відкриваємо
+    document.getElementById('articleModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('articleModal').classList.remove('open');
+    document.body.style.overflow = '';
+    currentArticle = null;
+}
+
+function modalOverlayClick(e) {
+    if (e.target.id === 'articleModal') closeModal();
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+
+/* ── Favorites ── */
+function updateStarBtn() {
+    const btn = document.getElementById('starBtn');
+    if (!currentArticle) return;
+    const isFav = userFavorites.has(currentArticle.id);
+    btn.textContent = isFav ? '★' : '☆';
+    btn.classList.toggle('star-btn--active', isFav);
+}
+
+function toggleFavorite() {
+    if (!Auth.isLoggedIn()) {
+        window.location.href = '/login';
+        return;
+    }
+    if (!currentArticle || !currentArticle.id) return;
+
+    const btn = document.getElementById('starBtn');
+    btn.disabled = true;
+
+    fetch(`/api/user/favorites/${currentArticle.id}`, {
+        method: 'POST',
+        headers: Auth.getHeaders()
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(data => {
+        if (data.added) userFavorites.add(currentArticle.id);
+        else            userFavorites.delete(currentArticle.id);
+        updateStarBtn();
+    })
+    .catch(err => console.error('Favorites error:', err))
+    .finally(() => { btn.disabled = false; });
+}
+
+/* ── Manual Analysis ── */
+function runManualAnalysis() {
+    if (!currentArticle) return;
+
+    const options = {
+        runLinguistic:   document.getElementById('optLinguistic').checked,
+        runCrossSource:  document.getElementById('optCrossSource').checked,
+        runFactCheck:    document.getElementById('optFactCheck').checked,
+        runSentiment:    document.getElementById('optSentiment').checked,
+        runReadability:  document.getElementById('optReadability').checked,
+    };
+
+    const btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Аналізується...';
+
+    const headers = Auth.isLoggedIn()
+        ? Auth.getHeaders()
+        : { 'Content-Type': 'application/json' };
+
+    fetch(`/analysis/${currentArticle.id}/manual`, {
+        method:  'POST',
+        headers,
+        body:    JSON.stringify(options),
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(result => {
+        renderAnalysisResults(result);
+        btn.textContent = 'Переаналізувати';
+        btn.disabled = false;
+    })
+    .catch(err => {
+        btn.textContent = 'Помилка: ' + err.message;
+        btn.disabled = false;
+    });
+}
+
+function renderAnalysisResults(r) {
+    const container = document.getElementById('analysisResults');
+    container.style.display = 'block';
+
+    // Score circle
+    const score = r.credibilityScore ?? 0;
+    const circle = document.getElementById('scoreCircle');
+    document.getElementById('scoreValue').textContent = score;
+    circle.className = 'score-display__circle ' + scoreClass(score);
+
+    const labels = ['Дуже низька', 'Низька', 'Помірна', 'Висока', 'Дуже висока'];
+    document.getElementById('scoreLabel').textContent = labels[Math.floor(score / 21)] ?? 'Висока';
+
+    // Layer bars
+    document.getElementById('scoreLayers').innerHTML = `
+        <div class="score-layer">
+            <span>Лінгвістика</span>
+            <div class="score-bar"><div class="score-bar__fill score-bar__fill--linguistic" style="width:${(r.linguisticScore/35)*100}%"></div></div>
+            <span>${r.linguisticScore ?? 0}/35</span>
+        </div>
+        <div class="score-layer">
+            <span>Перехресна перевірка</span>
+            <div class="score-bar"><div class="score-bar__fill score-bar__fill--cross" style="width:${(r.crossSourceScore/35)*100}%"></div></div>
+            <span>${r.crossSourceScore ?? 0}/35</span>
+        </div>
+        <div class="score-layer">
+            <span>Факт-чекінг</span>
+            <div class="score-bar"><div class="score-bar__fill score-bar__fill--fact" style="width:${(r.factCheckScore/30)*100}%"></div></div>
+            <span>${r.factCheckScore ?? 0}/30</span>
+        </div>`;
+
+    // Extra metrics
+    const sentiment  = r.sentimentLabel !== 'N/A' ? sentimentUk(r.sentimentLabel) + ` (${r.sentimentScore?.toFixed(2)})` : '—';
+    const readability = r.readabilityLevel !== 'N/A' ? readabilityUk(r.readabilityLevel) + ` (${r.readabilityScore?.toFixed(0)})` : '—';
+
+    // Details
+    const details = [];
+    if (r.hedgeWordsFound?.length)      details.push(`<li>Хедж-слова: <em>${escHtml(r.hedgeWordsFound.join(', '))}</em></li>`);
+    if (r.clickbaitIndicators?.length)  details.push(`<li>Клікбейт: <em>${escHtml(r.clickbaitIndicators.join(', '))}</em></li>`);
+    if (r.emotionalWordsFound?.length)  details.push(`<li>Емоційна лексика: <em>${escHtml(r.emotionalWordsFound.join(', '))}</em></li>`);
+    if (r.manipulationIndicators?.length) details.push(`<li>Маніпуляція: <em>${escHtml(r.manipulationIndicators.join(', '))}</em></li>`);
+    if (r.conspiracyIndicators?.length) details.push(`<li>Конспірологія: <em>${escHtml(r.conspiracyIndicators.join(', '))}</em></li>`);
+    if (r.confirmedSources?.length)     details.push(`<li>Підтверджено: <em>${escHtml(r.confirmedSources.join(', '))}</em></li>`);
+    if (r.sourceDomain)                 details.push(`<li>Домен: <em>${escHtml(r.sourceDomain)}</em> — ${escHtml(r.sourceReputationTier)}</li>`);
+
+    document.getElementById('scoreDetails').innerHTML = `
+        <div class="score-extras">
+            <span>Тональність: <strong>${sentiment}</strong></span>
+            <span>Читабельність: <strong>${readability}</strong></span>
+            ${r.wordCount ? `<span>Слів: <strong>${r.wordCount}</strong></span>` : ''}
+        </div>
+        ${details.length ? `<ul class="score-indicators">${details.join('')}</ul>` : ''}`;
+
+    document.getElementById('scoreReasoning').innerHTML =
+        r.reasoning ? `<div class="score-reasoning__text">${escHtml(r.reasoning)}</div>` : '';
+}
+
+function scoreClass(s) {
+    if (s <= 20) return 'score--very-low';
+    if (s <= 40) return 'score--low';
+    if (s <= 60) return 'score--medium';
+    if (s <= 80) return 'score--high';
+    return 'score--very-high';
+}
+
+function sentimentUk(l) {
+    return { POSITIVE: 'Позитивна', NEUTRAL: 'Нейтральна', NEGATIVE: 'Негативна' }[l] || l;
+}
+function readabilityUk(l) {
+    return { VERY_EASY: 'Дуже легко', EASY: 'Легко', STANDARD: 'Стандарт', DIFFICULT: 'Складно', VERY_DIFFICULT: 'Дуже складно' }[l] || l;
+}
+
+window.openModal        = openModal;
+window.closeModal       = closeModal;
+window.toggleFavorite   = toggleFavorite;
+window.runManualAnalysis= runManualAnalysis;
+window.modalOverlayClick= modalOverlayClick;

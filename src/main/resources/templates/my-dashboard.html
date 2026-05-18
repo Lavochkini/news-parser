@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fistserious — Мій кабінет</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+</head>
+<body>
+
+<header class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__title">Fistserious</span>
+    </div>
+    <nav class="navbar__nav" style="margin-left:auto;gap:12px;display:flex;align-items:center">
+        <a href="/main"         class="btn btn--ghost">Стрічка новин</a>
+        <a href="/dashboard"    class="btn btn--ghost">Дашборд</a>
+        <a href="/my-dashboard" class="btn btn--primary">Мій кабінет</a>
+        <span id="navUser"></span>
+    </nav>
+</header>
+
+<div class="dash-page">
+
+    <!-- Не авторизований -->
+    <div id="notLoggedIn" style="display:none;text-align:center;padding:80px 20px">
+        <div style="font-size:48px;margin-bottom:16px">🔐</div>
+        <h2 style="margin-bottom:12px">Потрібна авторизація</h2>
+        <p style="color:var(--text-muted);margin-bottom:24px">Увійдіть щоб бачити свої аналізи та збережені статті</p>
+        <a href="/login" class="btn btn--primary">Увійти</a>
+    </div>
+
+    <!-- Контент -->
+    <div id="dashContent" style="display:none">
+
+        <!-- Stat cards -->
+        <div class="dash-cards">
+            <div class="stat-card">
+                <div class="stat-card__value" id="myUsername">—</div>
+                <div class="stat-card__label">Користувач</div>
+            </div>
+            <div class="stat-card stat-card--accent">
+                <div class="stat-card__value" id="myAnalyzed">—</div>
+                <div class="stat-card__label">Проаналізовано мною</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__value" id="myFavorites">—</div>
+                <div class="stat-card__label">Збережено</div>
+            </div>
+        </div>
+
+        <!-- Мої аналізи -->
+        <div class="dash-section">
+            <h2 class="dash-title">Мої аналізи</h2>
+            <div id="analyzedList" class="personal-list">
+                <div class="personal-list__empty">Ви ще не аналізували жодної статті.<br>
+                    Відкрийте будь-яку статтю на <a href="/main">стрічці новин</a> і натисніть "Аналізувати".</div>
+            </div>
+        </div>
+
+        <!-- Збережені -->
+        <div class="dash-section">
+            <h2 class="dash-title">Збережені статті ★</h2>
+            <div id="favoriteList" class="personal-list">
+                <div class="personal-list__empty">Збережених статей немає.<br>
+                    Натисніть ☆ у картці статті щоб зберегти.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══════════════ ARTICLE MODAL ═══════════════ -->
+<div class="modal-overlay" id="articleModal" onclick="modalOverlayClick(event)">
+    <div class="modal" id="modalContent">
+        <div class="modal__header">
+            <div class="modal__badges" id="modalBadges"></div>
+            <button class="modal__close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal__body">
+            <img class="modal__img" id="modalImg" src="" alt="" style="display:none">
+            <h2 class="modal__title" id="modalTitle"></h2>
+            <div class="modal__meta-row">
+                <span class="modal__source" id="modalSource"></span>
+                <span class="modal__date"   id="modalDate"></span>
+            </div>
+            <p class="modal__desc" id="modalDesc"></p>
+            <div class="modal__full-text" id="modalFullText"></div>
+            <div class="modal__actions">
+                <button class="star-btn" id="starBtn" onclick="toggleFavorite()">☆</button>
+                <a class="btn btn--outline" id="modalReadLink" href="#" target="_blank">Читати оригінал →</a>
+            </div>
+
+            <div class="modal__analysis-section">
+                <h3 class="modal__section-title">Аналіз правдивості</h3>
+                <div class="method-list">
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optLinguistic" checked>
+                            <span class="method-item__name">Лінгвістичний аналіз</span>
+                            <span class="method-item__score">0–35 балів</span>
+                        </label>
+                        <div class="method-item__desc">Хедж-слова (−3), клікбейт (−5), емоційна лексика (−2), маніпуляція (−8), конспірологія (−20 + cap 40).</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optCrossSource" checked>
+                            <span class="method-item__name">Перехресна перевірка</span>
+                            <span class="method-item__score">0–35 балів</span>
+                        </label>
+                        <div class="method-item__desc">Пошук теми у NewsAPI, Guardian, GNews. 0 джерел → 0 | 1 → 10 | 2 → 22 | 3 → 35. Мін. 3 результати для підтвердження.</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optFactCheck" checked>
+                            <span class="method-item__name">Факт-чекінг</span>
+                            <span class="method-item__score">0–30 балів</span>
+                        </label>
+                        <div class="method-item__desc">Репутація домену (0–12) + ClaimBuster regex (0–10) + RSS Snopes/PolitiFact (0–8).</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optSentiment" checked>
+                            <span class="method-item__name">Тональність (AFINN)</span>
+                            <span class="method-item__score">додатково</span>
+                        </label>
+                        <div class="method-item__desc">Лексикон AFINN-111. Оцінка −1.0 … +1.0. Не впливає на credibility score.</div>
+                    </div>
+                    <div class="method-item">
+                        <label class="method-item__header">
+                            <input type="checkbox" id="optReadability" checked>
+                            <span class="method-item__name">Читабельність (Flesch)</span>
+                            <span class="method-item__score">додатково</span>
+                        </label>
+                        <div class="method-item__desc"><code>206.835 − 1.015×(слів/речень) − 84.6×(складів/слів)</code>. Не впливає на credibility score.</div>
+                    </div>
+                </div>
+                <button class="btn btn--primary btn--analyze" id="analyzeBtn" onclick="runManualAnalysis()">Аналізувати</button>
+                <div id="analysisResults" style="display:none">
+                    <div class="score-display">
+                        <div class="score-display__circle" id="scoreCircle">
+                            <span id="scoreValue">—</span><small>/100</small>
+                        </div>
+                        <div class="score-display__label" id="scoreLabel"></div>
+                    </div>
+                    <div class="score-layers" id="scoreLayers"></div>
+                    <div class="score-details" id="scoreDetails"></div>
+                    <div class="score-reasoning" id="scoreReasoning"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/my-dashboard.js}" defer></script>
+</body>
+</html>
