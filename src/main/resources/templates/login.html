@@ -2,72 +2,56 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fistserious — Вхід</title>
+    <title>Fistserios — Login</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
 
 <div class="auth-wrapper">
 
-    <!-- Ліве зображення -->
     <div class="auth-image">
-        <img th:src="@{/images/leftImage.png}" alt="Snake" />
+        <img th:src="@{/images/leftImage.png}" alt="" />
     </div>
 
-    <!-- Картка форми -->
     <div class="auth-card">
-        <div class="auth-logo">Fistserious</div>
-        <div class="auth-subtitle">Вхід до системи аналізу новин</div>
+        <div class="auth-logo">Fistserios</div>
+        <div class="auth-subtitle">Sign in to your account</div>
 
-        <!-- Глобальна помилка -->
-        <div class="auth-error" id="globalError"></div>
+        <div id="globalError" class="auth-error"></div>
 
-        <form id="loginForm" novalidate autocomplete="off">
+        <form id="loginForm" novalidate>
 
-            <!-- Email або Username -->
             <div class="field">
-                <label class="field__label" for="fLogin">Email або Username</label>
+                <label class="field__label" for="email">E-mail</label>
                 <div class="field__wrap">
-                    <input class="field__input" id="fLogin" name="login"
-                           type="text" placeholder="user@example.com або username"
-                           autocomplete="username" />
-                    <span class="field__status" id="loginStatus"></span>
+                    <input class="field__input" id="email"
+                           type="text" name="email" placeholder="you@example.com" autocomplete="email" />
                 </div>
-                <div class="field__hint" id="loginHint"></div>
+                <div class="field__hint field__hint--error" id="emailError"></div>
             </div>
 
-            <!-- Пароль -->
             <div class="field">
-                <label class="field__label" for="fPassword">Пароль</label>
+                <label class="field__label" for="password">Password</label>
                 <div class="field__wrap">
-                    <input class="field__input" id="fPassword" name="password"
-                           type="password" placeholder="Введіть пароль"
-                           autocomplete="current-password" />
-                    <button type="button" class="field__toggle" id="togglePassword"
-                            onclick="togglePwd('fPassword','togglePassword')" title="Показати/приховати">Показати</button>
+                    <input class="field__input" id="password"
+                           type="password" name="password" placeholder="Your password" autocomplete="current-password" />
+                    <button type="button" class="field__toggle" id="togglePassword">Show</button>
                 </div>
-                <div class="field__hint" id="passwordHint"></div>
+                <div class="field__hint field__hint--error" id="passwordError"></div>
             </div>
 
-            <button class="auth-btn" id="submitBtn" type="submit">Увійти</button>
-            <p class="terms-note">
-                Входячи в систему, ви підтверджуєте згоду з
-                <a href="/terms" target="_blank">Умовами використання</a>.
-            </p>
+            <button type="submit" class="auth-btn">Sign in</button>
+
         </form>
 
-        <div class="auth-divider">або</div>
-
         <div class="auth-links">
-            <a href="/register" class="link-primary">Реєстрація</a>
-            <a href="/main"     class="link-guest">Продовжити як гість</a>
+            <a th:href="@{/register}" class="link-primary">Create an account</a>
+            <a th:href="@{/main}"     class="link-guest">Continue as guest</a>
         </div>
     </div>
 
-    <!-- Праве зображення -->
     <div class="auth-image">
-        <img th:src="@{/images/rightImage.png}" alt="Snake" />
+        <img th:src="@{/images/rightImage.png}" alt="" />
     </div>
 
 </div>
