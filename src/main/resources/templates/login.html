@@ -2,38 +2,58 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fistserios Login</title>
+    <title>Fistserios — Login</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<div class="login-image">
-    <img th:src="@{/images/leftImage.png}" alt="Left Login Image" />
-</div>
 
-<div class="login-container">
-    <div class="login-form">
-        <h1 class="logo">Fistserios</h1>
-        <h2>Login</h2>
+<div class="auth-wrapper">
 
-        <form id="loginForm">
-            <input type="text" name="email" placeholder="E-mail" />
-            <div id="emailError" class="error-label"></div>
+    <div class="auth-image">
+        <img th:src="@{/images/leftImage.png}" alt="" />
+    </div>
 
-            <input type="password" name="password" placeholder="Password" />
-            <div id="passwordError" class="error-label"></div>
+    <div class="auth-card">
+        <div class="auth-logo">Fistserios</div>
+        <div class="auth-subtitle">Sign in to your account</div>
 
-            <button type="submit">Login</button>
+        <div id="globalError" class="auth-error"></div>
+
+        <form id="loginForm" novalidate>
+
+            <div class="field">
+                <label class="field__label" for="email">E-mail</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="email"
+                           type="text" name="email" placeholder="you@example.com" autocomplete="email" />
+                </div>
+                <div class="field__hint field__hint--error" id="emailError"></div>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="password">Password</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="password"
+                           type="password" name="password" placeholder="Your password" autocomplete="current-password" />
+                    <button type="button" class="field__toggle" id="togglePassword">Show</button>
+                </div>
+                <div class="field__hint field__hint--error" id="passwordError"></div>
+            </div>
+
+            <button type="submit" class="auth-btn">Sign in</button>
+
         </form>
 
-        <div class="links">
-            <a th:href="@{/register}" class="link-blue">Registration</a>
-            <a th:href="@{/main}" class="link-green">Guest</a>
+        <div class="auth-links">
+            <a th:href="@{/register}" class="link-primary">Create an account</a>
+            <a th:href="@{/main}"     class="link-guest">Continue as guest</a>
         </div>
     </div>
-</div>
 
-<div class="login-image">
-    <img th:src="@{/images/rightImage.png}" alt="Right Login Image" />
+    <div class="auth-image">
+        <img th:src="@{/images/rightImage.png}" alt="" />
+    </div>
+
 </div>
 
 <script th:src="@{/js/auth.js}"></script>

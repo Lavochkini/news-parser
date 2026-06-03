@@ -2,44 +2,77 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fistserios Registration</title>
+    <title>Fistserios — Registration</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<div class="login-image">
-    <img th:src="@{/images/leftImage.png}" alt="Left Registration Image" />
-</div>
 
-<div class="login-container">
-    <div class="login-form">
-        <h1 class="logo">Fistserios</h1>
-        <h2>Registration</h2>
+<div class="auth-wrapper">
 
-        <form id="registrationForm">
-            <input type="text" name="username" placeholder="Username" />
-            <div id="usernameError" class="error-label"></div>
+    <div class="auth-image">
+        <img th:src="@{/images/leftImage.png}" alt="" />
+    </div>
 
-            <input type="text" name="email" placeholder="E-mail" />
-            <div id="emailError" class="error-label"></div>
+    <div class="auth-card">
+        <div class="auth-logo">Fistserios</div>
+        <div class="auth-subtitle">Create your account</div>
 
-            <input type="password" name="password" placeholder="Password" />
-            <div id="passwordError" class="error-label"></div>
+        <div id="globalError" class="auth-error"></div>
 
-            <input type="password" name="confirmPassword" placeholder="Confirm Password" />
-            <div id="confirmPasswordError" class="error-label"></div>
+        <form id="registrationForm" novalidate>
 
-            <button type="submit">Register</button>
+            <div class="field">
+                <label class="field__label" for="username">Username</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="username"
+                           type="text" name="username" placeholder="Enter username" autocomplete="username" />
+                </div>
+                <div class="field__hint field__hint--error" id="usernameError"></div>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="email">E-mail</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="email"
+                           type="text" name="email" placeholder="you@example.com" autocomplete="email" />
+                </div>
+                <div class="field__hint field__hint--error" id="emailError"></div>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="password">Password</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="password"
+                           type="password" name="password" placeholder="Create a password" autocomplete="new-password" />
+                    <button type="button" class="field__toggle" id="togglePassword">Show</button>
+                </div>
+                <div class="field__hint field__hint--error" id="passwordError"></div>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="confirmPassword">Confirm password</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="confirmPassword"
+                           type="password" name="confirmPassword" placeholder="Repeat password" autocomplete="new-password" />
+                    <button type="button" class="field__toggle" id="toggleConfirm">Show</button>
+                </div>
+                <div class="field__hint field__hint--error" id="confirmPasswordError"></div>
+            </div>
+
+            <button type="submit" class="auth-btn">Create account</button>
+
         </form>
 
-        <div class="links">
-            <a th:href="@{/login}" class="link-blue">Already have an account? Log in</a>
-            <a th:href="@{/main}" class="link-green">Continue as guest</a>
+        <div class="auth-links">
+            <a th:href="@{/login}" class="link-primary">Already have an account? Log in</a>
+            <a th:href="@{/main}"  class="link-guest">Continue as guest</a>
         </div>
     </div>
-</div>
 
-<div class="login-image">
-    <img th:src="@{/images/rightImage.png}" alt="Right Registration Image" />
+    <div class="auth-image">
+        <img th:src="@{/images/rightImage.png}" alt="" />
+    </div>
+
 </div>
 
 <script th:src="@{/js/auth.js}"></script>
