@@ -26,19 +26,16 @@ public class DashboardController {
 
         Map<String, Object> stats = new LinkedHashMap<>();
 
-        // ── Базові лічильники ──
         stats.put("totalArticles", totalArticles);
         stats.put("totalAnalyzed", totalAnalyzed);
 
         if (analyses.isEmpty()) return stats;
 
-        // ── Середній credibility score ──
         double avgCredibility = analyses.stream()
                 .mapToInt(NewsAnalysis::getCredibilityScore)
                 .average().orElse(0);
         stats.put("avgCredibilityScore", Math.round(avgCredibility * 10.0) / 10.0);
 
-        // ── Розподіл credibility по бакетах (0-20, 20-40...) ──
         Map<String, Long> credBuckets = new LinkedHashMap<>();
         credBuckets.put("0–20",   bucket(analyses, 0,  20));
         credBuckets.put("21–40",  bucket(analyses, 21, 40));
@@ -47,25 +44,21 @@ public class DashboardController {
         credBuckets.put("81–100", bucket(analyses, 81, 100));
         stats.put("credibilityBuckets", credBuckets);
 
-        // ── Sentiment breakdown ──
         Map<String, Long> sentiment = analyses.stream()
                 .filter(a -> a.getSentimentLabel() != null)
                 .collect(Collectors.groupingBy(NewsAnalysis::getSentimentLabel, Collectors.counting()));
         stats.put("sentimentBreakdown", sentiment);
 
-        // ── Readability breakdown ──
         Map<String, Long> readability = analyses.stream()
                 .filter(a -> a.getReadabilityLevel() != null && !a.getReadabilityLevel().equals("UNKNOWN"))
                 .collect(Collectors.groupingBy(NewsAnalysis::getReadabilityLevel, Collectors.counting()));
         stats.put("readabilityBreakdown", readability);
 
-        // ── Source reputation breakdown ──
         Map<String, Long> reputation = analyses.stream()
                 .filter(a -> a.getSourceReputationTier() != null)
                 .collect(Collectors.groupingBy(NewsAnalysis::getSourceReputationTier, Collectors.counting()));
         stats.put("reputationBreakdown", reputation);
 
-        // ── Середній score по шарах ──
         double avgLinguistic  = analyses.stream().mapToInt(NewsAnalysis::getLinguisticScore).average().orElse(0);
         double avgCrossSource = analyses.stream().mapToInt(NewsAnalysis::getCrossSourceScore).average().orElse(0);
         double avgFactCheck   = analyses.stream().mapToInt(NewsAnalysis::getFactCheckScore).average().orElse(0);
@@ -75,7 +68,6 @@ public class DashboardController {
                 "factCheck",   Math.round(avgFactCheck   * 10.0) / 10.0
         ));
 
-        // ── Топ-10 доменів за середнім score ──
         Map<String, Double> domainAvg = analyses.stream()
                 .filter(a -> a.getSourceDomain() != null && !a.getSourceDomain().isBlank())
                 .collect(Collectors.groupingBy(
@@ -89,7 +81,6 @@ public class DashboardController {
                         e -> Math.round(e.getValue() * 10.0) / 10.0,
                         (a, b) -> a, LinkedHashMap::new)));
 
-        // ── Топ hedge words ──
         Map<String, Long> hedgeCounts = analyses.stream()
                 .filter(a -> a.getHedgeWordsFound() != null)
                 .flatMap(a -> a.getHedgeWordsFound().stream())
@@ -103,7 +94,6 @@ public class DashboardController {
         return stats;
     }
 
-    // ── Пошук статей з фільтрами ──────────────────────────────────
     @GetMapping("/search")
     public Map<String, Object> searchArticles(
             @RequestParam(defaultValue = "0")   int scoreMin,
@@ -117,7 +107,6 @@ public class DashboardController {
             @RequestParam(defaultValue = "0")   int page,
             @RequestParam(defaultValue = "20")  int size) {
 
-        // 1. Фільтруємо аналізи (поля з NewsAnalysis)
         List<NewsAnalysis> filtered = analysisRepository.findAll().stream()
                 .filter(a -> a.getCredibilityScore() >= scoreMin && a.getCredibilityScore() <= scoreMax)
                 .filter(a -> blank(sentimentLabel)   || sentimentLabel.equals(a.getSentimentLabel()))
@@ -125,7 +114,6 @@ public class DashboardController {
                 .filter(a -> blank(reputationTier)   || reputationTier.equals(a.getSourceReputationTier()))
                 .toList();
 
-        // 2. Збагачуємо даними статті + фільтруємо по sourceType і пошуковому запиту
         String searchLc = blank(search) ? null : search.toLowerCase();
         List<Map<String, Object>> results = filtered.stream()
                 .map(a -> {
@@ -165,7 +153,6 @@ public class DashboardController {
                 .sorted(comparator(sortBy))
                 .toList();
 
-        // 3. Пагінація
         int total     = results.size();
         int fromIdx   = page * size;
         int toIdx     = Math.min(fromIdx + size, total);

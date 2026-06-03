@@ -16,15 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Імпортує CSV-файли Kaggle "Fake and Real News Dataset".
- *
- * Очікуваний формат колонок (без заголовка або з заголовком):
- *   title, text, subject, date
- *
- * Використання:
- *   POST /api/dataset/import?truePath=C:/data/True.csv&fakePath=C:/data/Fake.csv
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j

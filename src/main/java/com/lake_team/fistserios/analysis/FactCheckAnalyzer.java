@@ -18,45 +18,37 @@ public class FactCheckAnalyzer {
     private final FactCheckRssChecker     rssChecker;
     private final RecycledNewsDetector    recycledNewsDetector;
 
-    /** Повний аналіз — всі підметоди увімкнено */
     public FactCheckLayerResult analyze(NewsItem item) {
         return analyze(item, AnalysisOptions.FactCheckSubOptions.all());
     }
 
-    /** Аналіз з вибором підметодів */
     public FactCheckLayerResult analyze(NewsItem item, AnalysisOptions.FactCheckSubOptions sub) {
 
-        // ── Підшар 1: репутація домену ──
         SourceReputationChecker.ReputationResult reputation = sub.sourceReputation()
                 ? reputationChecker.check(item)
                 : new SourceReputationChecker.ReputationResult(0, "SKIPPED", extractDomain(item));
 
-        // ── Підшар 1b: розширений URL-аналіз ──
         SourceReputationChecker.UrlAnalysisResult urlAnalysis = sub.extendedUrlAnalysis()
                 ? reputationChecker.checkUrl(item.getUrl())
                 : new SourceReputationChecker.UrlAnalysisResult("SKIPPED", List.of(), 0);
 
-        // ── Підшар 2: ClaimBuster ──
         ClaimBusterChecker.ClaimBusterResult claimBuster = sub.claimBuster()
                 ? claimBusterChecker.check(item)
                 : new ClaimBusterChecker.ClaimBusterResult(0, 0.0);
 
-        // ── Підшар 3: RSS fact-check ──
         FactCheckRssChecker.RssCheckResult rss = sub.rssCheck()
                 ? rssChecker.check(item)
                 : new FactCheckRssChecker.RssCheckResult(0, null, null);
 
-        // ── Підшар 4: перевидана новина ──
         RecycledNewsDetector.RecycledResult recycled = sub.recycledNews()
                 ? recycledNewsDetector.detect(item)
                 : new RecycledNewsDetector.RecycledResult(false, null, 0);
 
-        // ── Підсумковий score ──
         int total = reputation.score()
                   + claimBuster.score()
                   + rss.score()
-                  + urlAnalysis.penalty()      // від'ємний або 0
-                  + recycled.penalty();         // від'ємний або 0
+                  + urlAnalysis.penalty()
+                  + recycled.penalty();
         total = Math.max(total, 0);
 
         log.debug("FactCheck [{}]: rep={} url={} cb={} rss={} recycled={} → {}",
@@ -65,26 +57,20 @@ public class FactCheckAnalyzer {
 
         return FactCheckLayerResult.builder()
                 .score(total)
-                // репутація
                 .sourceReputationScore(reputation.score())
                 .sourceDomain(reputation.domain())
                 .sourceReputationTier(reputation.tier())
-                // URL-аналіз
                 .urlAnalysisTier(urlAnalysis.tier())
                 .urlWarnings(urlAnalysis.warnings())
                 .urlPenalty(urlAnalysis.penalty())
-                // ClaimBuster
                 .claimBusterScore(claimBuster.score())
                 .claimBusterRaw(claimBuster.rawScore())
-                // RSS
                 .rssCheckScore(rss.score())
                 .rssMatchedTitle(rss.matchedTitle())
                 .rssMatchSource(rss.source())
-                // recycled
                 .recycledNewsDetected(recycled.detected())
                 .recycledNewsReason(recycled.reason())
                 .recycledNewsPenalty(recycled.penalty())
-                // загальне
                 .claimsFound(rss.matchedTitle() != null ? 1 : 0)
                 .claims(List.of())
                 .verdict(buildVerdict(reputation, urlAnalysis, claimBuster, rss, recycled, sub))

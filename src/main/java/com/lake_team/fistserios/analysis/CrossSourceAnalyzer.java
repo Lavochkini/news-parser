@@ -36,7 +36,6 @@ public class CrossSourceAnalyzer {
 
     private static final int[] SCORE_BY_SOURCES = {0, 10, 22, 35};
 
-    // Слова що не несуть змістового навантаження для пошуку
     private static final Set<String> STOP_WORDS = Set.of(
             "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
             "of", "with", "by", "from", "up", "about", "into", "through", "after",
@@ -76,10 +75,6 @@ public class CrossSourceAnalyzer {
                 .build();
     }
 
-    // ── пошук по кожному API ──────────────────────────────────────
-
-    // Мінімальна кількість результатів щоб вважати тему "підтвердженою".
-    // > 0 давало false positive для конспірацій (debunking articles теж рахувались).
     private static final int MIN_RESULTS = 3;
 
     private boolean searchNewsApi(String encodedQuery) {
@@ -123,8 +118,6 @@ public class CrossSourceAnalyzer {
             return false;
         }
     }
-
-    // ── витягування ключових слів ─────────────────────────────────
 
     String extractKeywords(String title) {
         if (title == null || title.isBlank()) return "";

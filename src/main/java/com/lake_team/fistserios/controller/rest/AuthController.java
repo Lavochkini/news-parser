@@ -27,7 +27,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        // Підтримуємо як "email", так і "login" (email або username)
         String email    = body.getOrDefault("login", body.get("email"));
         String password = body.get("password");
 

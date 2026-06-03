@@ -25,12 +25,10 @@ public class UserService {
     }
 
     public Optional<User> login(String emailOrUsername, String rawPassword) {
-        // Спробуємо знайти по email, потім по username
         Optional<User> user = emailOrUsername.contains("@")
                 ? userRepository.findByEmail(emailOrUsername)
                 : userRepository.findByUsername(emailOrUsername);
         if (user.isEmpty()) {
-            // Якщо не знайшли — спробуємо другий варіант
             user = userRepository.findByEmail(emailOrUsername);
             if (user.isEmpty()) user = userRepository.findByUsername(emailOrUsername);
         }

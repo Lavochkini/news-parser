@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 public class ReadabilityAnalyzer {
 
     public record ReadabilityResult(
-            double fleschScore,   // 0–100
-            String level,         // VERY_EASY / EASY / STANDARD / DIFFICULT / VERY_DIFFICULT
+            double fleschScore,
+            String level,
             int wordCount,
             int sentenceCount,
             double avgWordsPerSentence,
@@ -46,7 +46,6 @@ public class ReadabilityAnalyzer {
         );
     }
 
-    // Підрахунок складів: рахуємо групи голосних, мінімум 1 на слово
     int countSyllables(String word) {
         String w       = word.toLowerCase().replaceAll("[^a-z]", "");
         if (w.isEmpty()) return 0;
@@ -57,7 +56,6 @@ public class ReadabilityAnalyzer {
             if (isVowel && !prevVowel) count++;
             prevVowel = isVowel;
         }
-        // тихе 'e' в кінці не рахується
         if (w.endsWith("e") && count > 1) count--;
         return Math.max(1, count);
     }

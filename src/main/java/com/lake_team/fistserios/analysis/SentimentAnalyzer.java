@@ -9,9 +9,7 @@ import java.util.Map;
 @Component
 public class SentimentAnalyzer {
 
-    // Підмножина AFINN-111, релевантна для новинних текстів
     private static final Map<String, Integer> AFINN = Map.ofEntries(
-            // Сильно негативні (-4 .. -5)
             Map.entry("terrorism",   -5), Map.entry("terrorist",  -5),
             Map.entry("massacre",    -5), Map.entry("genocide",   -5),
             Map.entry("atrocity",    -5), Map.entry("torture",    -5),
@@ -20,7 +18,6 @@ public class SentimentAnalyzer {
             Map.entry("corruption",  -4), Map.entry("fraud",      -4),
             Map.entry("criminal",    -4), Map.entry("brutal",     -4),
 
-            // Негативні (-2 .. -3)
             Map.entry("war",         -3), Map.entry("conflict",   -2),
             Map.entry("crisis",      -3), Map.entry("disaster",   -3),
             Map.entry("attack",      -2), Map.entry("threat",     -2),
@@ -43,14 +40,12 @@ public class SentimentAnalyzer {
             Map.entry("controversial",-1),Map.entry("dispute",    -1),
             Map.entry("tension",     -2), Map.entry("protest",    -1),
 
-            // Нейтрально-позитивні (+1)
             Map.entry("change",       1), Map.entry("reform",      1),
             Map.entry("increase",     1), Map.entry("rise",        1),
             Map.entry("gain",         1), Map.entry("deal",        1),
             Map.entry("stable",       1), Map.entry("agree",       1),
             Map.entry("support",      1), Map.entry("fund",        1),
 
-            // Позитивні (+2 .. +3)
             Map.entry("peace",        2), Map.entry("success",     2),
             Map.entry("victory",      2), Map.entry("win",         2),
             Map.entry("progress",     2), Map.entry("growth",      2),
@@ -62,7 +57,6 @@ public class SentimentAnalyzer {
             Map.entry("safe",         2), Map.entry("positive",    2),
             Map.entry("opportunity",  2), Map.entry("cooperation", 2),
 
-            // Сильно позитивні (+4 .. +5)
             Map.entry("breakthrough", 4), Map.entry("outstanding", 3),
             Map.entry("excellent",    3), Map.entry("great",       3),
             Map.entry("historic",     2), Map.entry("celebrate",   3),
@@ -90,7 +84,6 @@ public class SentimentAnalyzer {
 
         if (matched == 0) return new SentimentResult(0.0, "NEUTRAL", 0, 0);
 
-        // Нормалізуємо: ділимо на (matched * 5) — макс можливий sum
         double normalized = Math.max(-1.0, Math.min(1.0, sum / (matched * 5.0)));
         String label = normalized > 0.1 ? "POSITIVE" : normalized < -0.1 ? "NEGATIVE" : "NEUTRAL";
 

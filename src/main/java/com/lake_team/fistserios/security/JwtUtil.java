@@ -21,15 +21,10 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration; // мілісекунди, напр. 86400000 = 24 год
 
-    // Будуємо крипто-ключ із Base64-рядка з конфігурації
     private SecretKey getKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    /**
-     * Генерує JWT для конкретного юзера.
-     * Payload містить: email (subject), userId, username, role, iat, exp.
-     */
     public String generateToken(User user) {
         return Jwts.builder()
                 .subject(user.getEmail())             // "sub" — ідентифікатор
@@ -42,7 +37,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Розпарсовує токен і повертає payload (Claims)
     private Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getKey())                 // перевіряє підпис
@@ -63,11 +57,6 @@ public class JwtUtil {
         return extractClaims(token).get("userId", String.class);
     }
 
-    /**
-     * Повертає true тільки якщо:
-     *   1. Підпис валідний (токен не підроблений)
-     *   2. Токен не прострочений (exp > now)
-     */
     public boolean isValid(String token) {
         try {
             extractClaims(token);

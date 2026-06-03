@@ -74,7 +74,7 @@ public class FactCheckRssChecker {
 
         for (String title : titles) {
             long matches = keywords.stream().filter(title::contains).count();
-            if (matches >= 2) { // мінімум 2 ключових слова збігаються
+            if (matches >= 2) {
                 int score = detectRating(title);
                 log.debug("RSS match in {}: '{}' → score {}", sourceName, title, score);
                 return new RssCheckResult(score, title, sourceName);
@@ -91,7 +91,7 @@ public class FactCheckRssChecker {
         if (title.contains("mostly false")) return 2;
         if (title.contains("pants on fire") || title.contains("false") || title.contains("misleading"))
             return 0;
-        return 4; // знайдено, але рейтинг невизначений
+        return 4;
     }
 
     private List<String> extractKeywords(String title) {
