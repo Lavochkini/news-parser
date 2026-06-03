@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fistserious — Додати статтю</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+</head>
+<body>
+
+<header class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__title">Fistserious</span>
+    </div>
+    <nav class="navbar__nav" style="margin-left:auto;gap:12px;display:flex;align-items:center">
+        <a href="/main"         class="btn btn--ghost">Головна</a>
+        <a href="/dashboard"    class="btn btn--ghost">Дашборд</a>
+        <a href="/add-news"     class="btn btn--primary">Додати</a>
+        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
+        <div id="navUser" style="display:flex;align-items:center;gap:8px"></div>
+    </nav>
+</header>
+
+<div class="dash-page" style="max-width:860px">
+
+    <div>
+        <h1 style="font-size:20px;font-weight:700;margin-bottom:4px">Додати статтю</h1>
+        <p style="color:var(--text-muted);font-size:13px">Введіть текст вручну або завантажте JSON-файл із масивом статей</p>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px">
+        <button class="an-tab an-tab--active" id="tabForm" onclick="switchTab('form')">Форма</button>
+        <button class="an-tab" id="tabFile" onclick="switchTab('file')">JSON-файл</button>
+    </div>
+
+    <!-- ── ФОРМА ── -->
+    <div id="panelForm">
+        <div class="dash-section">
+            <div class="an-form">
+
+                <div class="an-field an-field--full">
+                    <label class="an-label">Заголовок <span class="an-req">*</span></label>
+                    <input id="fTitle" type="text" class="an-input" placeholder="Введіть заголовок статті…" maxlength="400">
+                </div>
+
+                <div class="an-row">
+                    <div class="an-field">
+                        <label class="an-label">Джерело / Видавець</label>
+                        <input id="fSource" type="text" class="an-input" placeholder="npr.org, CNN, The Sun…">
+                    </div>
+                    <div class="an-field">
+                        <label class="an-label">Категорія</label>
+                        <input id="fCategory" type="text" class="an-input" placeholder="Politics, Science…">
+                    </div>
+                </div>
+
+                <div class="an-field an-field--full">
+                    <label class="an-label">URL статті <span style="color:var(--text-muted);font-size:11px">(необов'язково — автогенерується якщо порожнє)</span></label>
+                    <input id="fUrl" type="url" class="an-input" placeholder="https://…">
+                </div>
+
+                <div class="an-field an-field--full">
+                    <label class="an-label">URL зображення <span style="color:var(--text-muted);font-size:11px">(необов'язково)</span></label>
+                    <input id="fImageUrl" type="url" class="an-input" placeholder="https://…/image.jpg">
+                </div>
+
+                <div class="an-field an-field--full">
+                    <label class="an-label">Короткий опис</label>
+                    <textarea id="fDesc" class="an-textarea" rows="3" placeholder="Лід / короткий опис статті…"></textarea>
+                </div>
+
+                <div class="an-field an-field--full">
+                    <label class="an-label">Повний текст <span class="an-req">*</span></label>
+                    <textarea id="fContent" class="an-textarea" rows="10" placeholder="Вставте повний текст статті тут…"></textarea>
+                    <div class="an-hint" id="wordCountHint">0 слів</div>
+                </div>
+
+                <div class="an-actions">
+                    <button class="btn btn--ghost" onclick="clearForm()">Очистити</button>
+                    <button class="btn btn--primary" id="submitBtn" onclick="submitForm()">Зберегти статтю</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Результат після збереження -->
+        <div id="formResult" style="display:none;margin-top:16px"></div>
+    </div>
+
+    <!-- ── ФАЙЛ ── -->
+    <div id="panelFile" style="display:none">
+        <div class="dash-section">
+
+            <div class="an-upload-zone" id="dropZone"
+                 ondragover="event.preventDefault();this.classList.add('an-upload-zone--over')"
+                 ondragleave="this.classList.remove('an-upload-zone--over')"
+                 ondrop="handleDrop(event)">
+                <div class="an-upload-icon"></div>
+                <div style="font-size:14px;font-weight:500;margin-bottom:6px">Перетягніть JSON-файл сюди</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">або</div>
+                <label class="btn btn--outline" style="cursor:pointer">
+                    Обрати файл
+                    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileSelect(this)">
+                </label>
+            </div>
+
+            <div id="fileInfo" style="display:none;margin-top:16px">
+                <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px" id="fileInfoText"></div>
+                <div id="filePreview" class="an-preview"></div>
+                <div class="an-actions" style="margin-top:16px">
+                    <button class="btn btn--ghost" onclick="clearFile()">Скинути</button>
+                    <button class="btn btn--primary" id="uploadBtn" onclick="uploadFile()">Імпортувати</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="uploadResult" style="display:none;margin-top:16px"></div>
+
+        <!-- Формат файлу -->
+        <div class="dash-section" style="margin-top:16px">
+            <h3 class="dash-title">Формат JSON-файлу</h3>
+            <pre class="an-code">[
+  {
+    "title":       "Заголовок статті",           <span style="color:#8b949e">// обов'язково</span>
+    "fullContent": "Повний текст статті...",      <span style="color:#8b949e">// обов'язково</span>
+    "description": "Короткий опис",              <span style="color:#8b949e">// необов'язково</span>
+    "source":      "fakeinfonews.com",            <span style="color:#8b949e">// необов'язково</span>
+    "category":    "Politics",                   <span style="color:#8b949e">// необов'язково</span>
+    "url":         "https://example.com/article" <span style="color:#8b949e">// необов'язково</span>
+  },
+  { ... }
+]</pre>
+            <a href="/sample-articles.json" download class="btn btn--ghost" style="margin-top:12px;font-size:12px">Завантажити приклад файлу</a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/add-news.js}" defer></script>
+</body>
+</html>

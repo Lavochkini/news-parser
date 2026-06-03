@@ -24,9 +24,17 @@ public class UserService {
         return userRepository.save(new User(username, email, hashedPassword, Role.USER));
     }
 
-    public Optional<User> login(String email, String rawPassword) {
-        return userRepository.findByEmail(email)
-                .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()));
+    public Optional<User> login(String emailOrUsername, String rawPassword) {
+        // Спробуємо знайти по email, потім по username
+        Optional<User> user = emailOrUsername.contains("@")
+                ? userRepository.findByEmail(emailOrUsername)
+                : userRepository.findByUsername(emailOrUsername);
+        if (user.isEmpty()) {
+            // Якщо не знайшли — спробуємо другий варіант
+            user = userRepository.findByEmail(emailOrUsername);
+            if (user.isEmpty()) user = userRepository.findByUsername(emailOrUsername);
+        }
+        return user.filter(u -> passwordEncoder.matches(rawPassword, u.getPassword()));
     }
 
     public User createUser(User user) {
@@ -66,5 +74,13 @@ public class UserService {
 
     public boolean ifUserExistByUsername(String username) {
         return userRepository.existsByUsername(username);
+    }
+
+    public boolean resetPassword(String userId, String rawPassword) {
+        return userRepository.findById(userId).map(user -> {
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            userRepository.save(user);
+            return true;
+        }).orElse(false);
     }
 }

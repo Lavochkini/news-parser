@@ -13,7 +13,7 @@
     <div class="navbar__brand">
         <button id="filterToggle" class="filter-toggle-btn" title="Filters">☰</button>
         <span class="navbar__icon"></span>
-        <span class="navbar__title">Fistserious</span>
+        <span class="navbar__title">Fistserios</span>
     </div>
 
     <div class="navbar__search">
@@ -26,8 +26,10 @@
     </div>
 
     <nav class="navbar__nav" style="gap:12px">
-        <a href="/dashboard"    class="btn btn--ghost">Дашборд</a>
-        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
+        <a href="/main"                                           class="btn btn--primary">Головна</a>
+        <a href="/dashboard"    onclick="guardedNav(event,this)" class="btn btn--ghost">Дашборд</a>
+        <a href="/add-news"     onclick="guardedNav(event,this)" class="btn btn--ghost">Додати</a>
+        <a href="/my-dashboard" onclick="guardedNav(event,this)" class="btn btn--ghost">Мій кабінет</a>
         <div id="navUser" style="display:flex;align-items:center;gap:8px"></div>
     </nav>
 </header>
@@ -122,7 +124,8 @@
             <!-- Дії -->
             <div class="modal__actions">
                 <button class="star-btn" id="starBtn" onclick="toggleFavorite()">☆</button>
-                <a class="btn btn--outline" id="modalReadLink" href="#" target="_blank">Читати оригінал →</a>
+                <a class="btn btn--outline" id="modalDetailLink" href="#">Детальніше</a>
+                <a class="btn btn--ghost" id="modalReadLink" href="#" target="_blank" style="color:var(--text-muted);font-size:13px;">Джерело →</a>
             </div>
 
             <!-- Аналіз правдивості -->
@@ -130,87 +133,259 @@
                 <h3 class="modal__section-title">Аналіз правдивості</h3>
 
                 <div class="method-list">
-                    <!-- Метод 1 -->
-                    <div class="method-item">
-                        <label class="method-item__header">
-                            <input type="checkbox" id="optLinguistic" checked>
-                            <span class="method-item__name">Лінгвістичний аналіз</span>
-                            <span class="method-item__score">0–35 балів</span>
-                        </label>
+
+                    <!-- ── Шар 1: Лінгвістика ── -->
+                    <div class="method-item" id="layerLinguistic">
+                        <div class="method-hrow">
+                            <label class="method-item__header">
+                                <input type="checkbox" id="optLinguistic" checked
+                                       onchange="toggleLayerSubs('linguistic', this.checked)">
+                                <span class="method-item__name">Лінгвістичний аналіз</span>
+                                <span class="method-item__score">0–35 балів</span>
+                            </label>
+                            <button class="minfo-btn" onclick="toggleMInfo('optLinguistic',this,event)" title="Детальніше">ⓘ</button>
+                        </div>
+                        <div class="minfo-panel" id="minfop-optLinguistic"></div>
                         <div class="method-item__desc">
-                            Аналізує текст без зовнішніх API. Штрафи:
-                            <ul>
-                                <li>Хедж-слова (<em>allegedly, reportedly, sources say...</em>) → −3 за слово (макс −15)</li>
-                                <li>Клікбейт у заголовку (<em>shocking, exposed, bombshell...</em>) → −5 за патерн (макс −10)</li>
-                                <li>Емоційна лексика (<em>catastrophe, outrage, rigged...</em>) → −2 за слово (макс −10)</li>
-                                <li>Маніпулятивні патерни (<em>fake news, caught red-handed...</em>) → −8 за патерн (макс −16)</li>
-                                <li>Конспірологія (<em>false flag, deep state, flat earth...</em>) → −20 фіксовано + cap 40 для всього score</li>
-                            </ul>
+                            Аналізує текст без зовнішніх API — штрафи за маніпулятивні патерни.
+                        </div>
+                        <!-- Суб-методи лінгвістики -->
+                        <div class="sub-methods" id="subs-linguistic">
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subHedge" checked>
+                                        <span class="sub-method__name">Хедж-слова</span>
+                                        <span class="sub-method__hint">allegedly, reportedly... → −3/слово (макс −15)</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subHedge',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subHedge"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subClickbait" checked>
+                                        <span class="sub-method__name">Клікбейт</span>
+                                        <span class="sub-method__hint">shocking, exposed, bombshell... → −5/патерн (макс −10)</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subClickbait',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subClickbait"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subEmotional" checked>
+                                        <span class="sub-method__name">Емоційна лексика</span>
+                                        <span class="sub-method__hint">catastrophe, outrage, rigged... → −2/слово (макс −10)</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subEmotional',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subEmotional"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subManipulation" checked>
+                                        <span class="sub-method__name">Маніпулятивні патерни</span>
+                                        <span class="sub-method__hint">fake news, caught red-handed... → −8/патерн (макс −16)</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subManipulation',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subManipulation"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subConspiracy" checked>
+                                        <span class="sub-method__name">Конспірологія</span>
+                                        <span class="sub-method__hint">false flag, deep state... → −20 фіксовано + cap 40</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subConspiracy',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subConspiracy"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subAnonSources" checked>
+                                        <span class="sub-method__name">Анонімна атрибуція</span>
+                                        <span class="sub-method__hint">sources say, insiders claim... → −3/патерн (макс −9)</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subAnonSources',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subAnonSources"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subCitationDensity" checked>
+                                        <span class="sub-method__name">Щільність цитат</span>
+                                        <span class="sub-method__hint">0 цитат → −6; 1–2 → −3; 3+ → 0</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subCitationDensity',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subCitationDensity"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subHeadlineConsistency" checked>
+                                        <span class="sub-method__name">Узгодженість заголовку</span>
+                                        <span class="sub-method__hint">&lt;20% спільних слів → −8; 20–40% → −4</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subHeadlineConsistency',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subHeadlineConsistency"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subBetteridge" checked>
+                                        <span class="sub-method__name">Закон Беттерідж</span>
+                                        <span class="sub-method__hint">заголовок-питання (Is/Are/Will...) → −4</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subBetteridge',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subBetteridge"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Метод 2 -->
+                    <!-- ── Шар 2: Крос-перевірка ── -->
                     <div class="method-item">
-                        <label class="method-item__header">
-                            <input type="checkbox" id="optCrossSource" checked>
-                            <span class="method-item__name">Перехресна перевірка</span>
-                            <span class="method-item__score">0–35 балів</span>
-                        </label>
+                        <div class="method-hrow">
+                            <label class="method-item__header">
+                                <input type="checkbox" id="optCrossSource" checked>
+                                <span class="method-item__name">Крос-перевірка джерел</span>
+                                <span class="method-item__score">0–35 балів</span>
+                            </label>
+                            <button class="minfo-btn" onclick="toggleMInfo('optCrossSource',this,event)" title="Детальніше">ⓘ</button>
+                        </div>
+                        <div class="minfo-panel" id="minfop-optCrossSource"></div>
                         <div class="method-item__desc">
-                            Витягує ключові слова із заголовку і шукає тему у трьох API:
-                            <strong>NewsAPI</strong>, <strong>The Guardian</strong>, <strong>GNews</strong>.
-                            Підтвердження: 0 джерел → 0 | 1 → 10 | 2 → 22 | 3 → 35.
-                            Поріг: мінімум 3 результати щоб уникнути рахування статей-спростувань.
-                            <em>Автоматично вимикається для статей з датасету (2016-2017 рр.).</em>
+                            Шукає тему у <strong>NewsAPI</strong>, <strong>The Guardian</strong>,
+                            <strong>GNews</strong>. 0 дж.→0 | 1→10 | 2→22 | 3→35.
+                            <em>Вимкнено для статей датасету.</em>
                         </div>
                     </div>
 
-                    <!-- Метод 3 -->
-                    <div class="method-item">
-                        <label class="method-item__header">
-                            <input type="checkbox" id="optFactCheck" checked>
-                            <span class="method-item__name">Факт-чекінг</span>
-                            <span class="method-item__score">0–30 балів</span>
-                        </label>
+                    <!-- ── Шар 3: Факт-чек ── -->
+                    <div class="method-item" id="layerFactCheck">
+                        <div class="method-hrow">
+                            <label class="method-item__header">
+                                <input type="checkbox" id="optFactCheck" checked
+                                       onchange="toggleLayerSubs('factcheck', this.checked)">
+                                <span class="method-item__name">Факт-чекінг</span>
+                                <span class="method-item__score">0–30 балів</span>
+                            </label>
+                            <button class="minfo-btn" onclick="toggleMInfo('optFactCheck',this,event)" title="Детальніше">ⓘ</button>
+                        </div>
+                        <div class="minfo-panel" id="minfop-optFactCheck"></div>
                         <div class="method-item__desc">
-                            Три підшари:
-                            <ul>
-                                <li><strong>Репутація домену</strong> (0–12): reuters.com, bbc.com → HIGH(12); nytimes.com → GOOD(9); невідомий → UNKNOWN(5); infowars.com → LOW(0). Всі .gov і .edu → HIGH.</li>
-                                <li><strong>ClaimBuster</strong> (0–10): власна regex-реалізація. Рахує кількість числових тверджень, абсолютів (never/always), дієслів заяв (claimed/confirmed). 0–1 сигнал → 10; 2–3 → 6; 4+ → 2.</li>
-                                <li><strong>RSS-перевірка</strong> (0–8): порівняння з RSS-стрічками Snopes та PolitiFact. TRUE → 8; не знайдено → 6; FALSE → 0.</li>
-                            </ul>
+                            Репутація домену + URL-аналіз + ClaimBuster + RSS + Перевидана новина.
+                        </div>
+                        <!-- Суб-методи факт-чеку -->
+                        <div class="sub-methods" id="subs-factcheck">
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subSourceRep" checked>
+                                        <span class="sub-method__name">Репутація домену</span>
+                                        <span class="sub-method__hint">reuters/bbc → HIGH(12) · невідомий → UNKNOWN(5) · infowars → LOW(0)</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subSourceRep',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subSourceRep"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subClaimBuster" checked>
+                                        <span class="sub-method__name">ClaimBuster</span>
+                                        <span class="sub-method__hint">числові твердження, абсолюти, дієслова заяв → 0–10 балів</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subClaimBuster',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subClaimBuster"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subRss" checked>
+                                        <span class="sub-method__name">RSS-перевірка</span>
+                                        <span class="sub-method__hint">Snopes / PolitiFact: TRUE→8 · не знайдено→6 · FALSE→0</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subRss',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subRss"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subExtendedUrl" checked>
+                                        <span class="sub-method__name">Розширений URL-аналіз</span>
+                                        <span class="sub-method__hint">підозрілий TLD, мімікрія бренду → −2…−5</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subExtendedUrl',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subExtendedUrl"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="subRecycledNews" checked>
+                                        <span class="sub-method__name">Перевидана новина</span>
+                                        <span class="sub-method__hint">стара дата у URL/тексті → −5</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('subRecycledNews',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-subRecycledNews"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Метод 4 -->
-                    <div class="method-item">
-                        <label class="method-item__header">
-                            <input type="checkbox" id="optSentiment" checked>
-                            <span class="method-item__name">Аналіз тональності</span>
-                            <span class="method-item__score">додатково</span>
-                        </label>
-                        <div class="method-item__desc">
-                            Лексикон AFINN-111 (~150 слів). Кожному слову присвоєно оцінку від −5 до +5.
-                            Нормалізований результат: −1.0 (дуже негативний) ... +1.0 (дуже позитивний).
-                            Мітки: POSITIVE (&gt;0.1) / NEUTRAL / NEGATIVE (&lt;−0.1).
-                            <em>Не впливає на credibility score.</em>
+                    <!-- ── Додаткові метрики ── -->
+                    <div class="method-item method-item--extra">
+                        <div class="method-item__extra-title">Додаткові метрики <span>(не впливають на score)</span></div>
+                        <div class="method-item__extra-row">
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="optSentiment" checked>
+                                        <span class="sub-method__name">Тональність</span>
+                                        <span class="sub-method__hint">AFINN-111 · від −1.0 до +1.0</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('optSentiment',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-optSentiment"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="optReadability" checked>
+                                        <span class="sub-method__name">Читабельність</span>
+                                        <span class="sub-method__hint">Flesch Reading Ease · 0–100</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('optReadability',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-optReadability"></div>
+                            </div>
+                            <div class="sub-mrow">
+                                <div class="sub-mrow__main">
+                                    <label class="sub-method">
+                                        <input type="checkbox" id="optWikipedia" checked>
+                                        <span class="sub-method__name">Wikipedia-верифікація</span>
+                                        <span class="sub-method__hint">Перевірка власних назв через Wikipedia API</span>
+                                    </label>
+                                    <button class="minfo-btn" onclick="toggleMInfo('optWikipedia',this,event)" title="Детальніше">ⓘ</button>
+                                </div>
+                                <div class="minfo-panel" id="minfop-optWikipedia"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Метод 5 -->
-                    <div class="method-item">
-                        <label class="method-item__header">
-                            <input type="checkbox" id="optReadability" checked>
-                            <span class="method-item__name">Читабельність</span>
-                            <span class="method-item__score">додатково</span>
-                        </label>
-                        <div class="method-item__desc">
-                            Формула Flesch Reading Ease:
-                            <code>206.835 − 1.015×(слів/речень) − 84.6×(складів/слів)</code>.
-                            Рівні: VERY_EASY (90–100) → EASY → STANDARD → DIFFICULT → VERY_DIFFICULT (0–30).
-                            <em>Не впливає на credibility score.</em>
-                        </div>
-                    </div>
                 </div>
 
                 <button class="btn btn--primary btn--analyze" id="analyzeBtn" onclick="runManualAnalysis()">
@@ -219,6 +394,7 @@
 
                 <!-- Результати -->
                 <div id="analysisResults" style="display:none">
+                    <div class="lang-disclaimer" id="langDisclaimer" style="display:none"></div>
                     <div class="score-display">
                         <div class="score-display__circle" id="scoreCircle">
                             <span id="scoreValue">—</span>
@@ -235,7 +411,31 @@
     </div>
 </div>
 
+<!-- ═══════════════ AUTH REQUIRED MODAL ═══════════════ -->
+<div class="modal-overlay modal-overlay--centered" id="authModal" onclick="if(event.target.id==='authModal')closeAuthModal()">
+    <div class="modal" style="max-width:400px;text-align:center;padding:40px 32px">
+        <div style="font-size:48px;margin-bottom:16px">🔐</div>
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">Потрібна авторизація</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:28px" id="authModalMsg">
+            Щоб аналізувати новини на достовірність, будь ласка, увійдіть або зареєструйтесь.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a href="/login" class="btn btn--primary" style="min-width:140px;justify-content:center">Увійти</a>
+            <button class="btn btn--ghost" onclick="closeAuthModal()" style="min-width:140px;justify-content:center">Залишитись гостем</button>
+        </div>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <span>© 2025 Fistserious</span>
+    <div class="site-footer__links">
+        <a href="/terms">Умови використання</a>
+        <a href="/terms#privacy">Конфіденційність</a>
+    </div>
+</footer>
+
 <script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/method-info-data.js}"></script>
 <script th:src="@{/js/main.js}" defer></script>
 </body>
 </html>

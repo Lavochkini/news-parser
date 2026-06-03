@@ -101,12 +101,23 @@ body {
     letter-spacing: .5px;
     margin-bottom: 6px;
 }
+.field__toggle:hover { color: var(--text); }
 
 .field__wrap {
     position: relative;
     display: flex;
     align-items: center;
 }
+.strength-bar__seg {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background .3s;
+}
+.strength-bar__seg--weak   { background: var(--error); }
+.strength-bar__seg--medium { background: var(--warning); }
+.strength-bar__seg--strong { background: var(--success); }
 
 .field__input {
     width: 100%;
@@ -243,17 +254,11 @@ body {
     gap: 24px;
     margin-top: 20px;
 }
-.auth-links a {
-    font-size: 13px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color .2s;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
 }
-.auth-links a.link-primary       { color: var(--accent); }
-.auth-links a.link-primary:hover { color: var(--accent-hover); }
-.auth-links a.link-guest         { color: var(--text-muted); }
-.auth-links a.link-guest:hover   { color: var(--text); }
-
 /* ── Terms consent checkbox (registration) ── */
 .terms-consent {
     display: flex;

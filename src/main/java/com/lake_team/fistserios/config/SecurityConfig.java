@@ -25,17 +25,22 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests(auth -> auth
+                // Публічне — перегляд новин, сторінки входу, статичні файли
                 .requestMatchers(
-                    "/auth/**",
+                    "/auth/**", "/auth/check-username",
                     "/news/**",
-                    "/analysis/**",
-                    "/api/dashboard/**",
-                    "/api/dataset/**",
-                    "/", "/main", "/login", "/register", "/dashboard", "/my-dashboard",
-                    "/css/**", "/js/**", "/images/**"
+                    "/", "/main", "/login", "/register",
+                    "/dashboard", "/my-dashboard", "/add-news", "/admin", "/article/**", "/terms",  // HTML-шаблони — доступ через JS-редирект
+                    "/css/**", "/js/**", "/images/**", "/*.json", "/*.html"
                 ).permitAll()
+                // Захищені API — аналіз, статистика, датасет, додавання новин
+                .requestMatchers("/analysis/**").authenticated()
+                .requestMatchers("/api/dashboard/**").authenticated()
+                .requestMatchers("/api/dataset/**").authenticated()
+                .requestMatchers("/api/news/manual", "/api/news/manual/**").authenticated()
                 .requestMatchers("/api/user/**").authenticated()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Адмін API — тільки ADMIN
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
 

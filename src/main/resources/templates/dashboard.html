@@ -12,13 +12,14 @@
 
 <header class="navbar">
     <div class="navbar__brand">
-        <span class="navbar__title">Fistserious</span>
+        <span class="navbar__title">Fistserios</span>
     </div>
     <nav class="navbar__nav" style="margin-left:auto;gap:12px;display:flex;align-items:center">
-        <a href="/main"         class="btn btn--ghost">Стрічка новин</a>
-        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
+        <a href="/main"         class="btn btn--ghost">Головна</a>
         <a href="/dashboard"    class="btn btn--primary">Дашборд</a>
-        <span id="navUser"></span>
+        <a href="/add-news"     class="btn btn--ghost">Додати</a>
+        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
+        <div id="navUser" style="display:flex;align-items:center;gap:8px"></div>
     </nav>
 </header>
 
@@ -84,6 +85,70 @@
     <div class="dash-section">
         <h2 class="dash-title">Найпоширеніші хедж-слова</h2>
         <div class="hedge-list" id="hedgeList"></div>
+    </div>
+
+    <!-- ── Validation ── -->
+    <div class="dash-section" id="validationSection">
+        <h2 class="dash-title">Валідація на датасеті Kaggle</h2>
+
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn--outline" id="batchBtn" onclick="runBatchAnalysis()">⚙ Проаналізувати датасет</button>
+            <button class="btn btn--primary" id="validateBtn" onclick="runValidation()">Запустити валідацію</button>
+            <span style="font-size:13px;color:var(--text-muted)">Порівнює результати аналізу з мітками TRUE / FAKE з датасету Kaggle Fake News</span>
+        </div>
+        <div id="batchStatus" style="display:none;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:12px;background:rgba(88,166,255,.08);color:var(--accent);border:1px solid rgba(88,166,255,.2)"></div>
+
+        <div id="validationLoading" style="display:none;text-align:center;padding:24px;color:var(--text-muted)">Обчислення…</div>
+        <div id="validationError"  style="display:none;padding:16px;color:var(--danger);font-size:13px"></div>
+
+        <div id="validationContent" style="display:none">
+
+            <!-- Stat cards -->
+            <div class="dash-cards" style="margin-bottom:24px" id="valCards"></div>
+
+            <!-- Best threshold highlight -->
+            <div id="bestThresholdCard" style="margin-bottom:24px"></div>
+
+            <!-- Confusion matrix + metrics table side by side -->
+            <div class="dash-grid dash-grid--2" style="margin-bottom:24px">
+                <div class="chart-card">
+                    <h3 class="chart-card__title">Confusion Matrix <span id="cmThresholdLabel" style="color:var(--text-muted);font-weight:400;font-size:13px"></span></h3>
+                    <div id="confusionMatrix"></div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-card__title">F1 Score по порогах</h3>
+                    <canvas id="f1Chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Metrics table -->
+            <div class="chart-card" style="margin-bottom:24px">
+                <h3 class="chart-card__title">Метрики по всіх порогах</h3>
+                <div style="overflow-x:auto">
+                    <table class="search-table" id="metricsTable">
+                        <thead>
+                            <tr>
+                                <th>Поріг</th>
+                                <th>TP</th><th>TN</th><th>FP</th><th>FN</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1</th>
+                                <th>Specificity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Score distribution -->
+            <div class="chart-card">
+                <h3 class="chart-card__title">Розподіл балів: TRUE vs FAKE</h3>
+                <canvas id="distChart" style="max-height:280px"></canvas>
+            </div>
+
+        </div>
     </div>
 
     <!-- ── Search / Filter ── -->

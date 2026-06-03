@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Стаття — Fistserious</title>
+    <link rel="stylesheet" href="/css/main.css"/>
+    <link rel="stylesheet" href="/css/article.css"/>
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<header class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__title">Fistserious</span>
+    </div>
+    <nav class="navbar__nav" style="margin-left:auto;gap:12px;display:flex;align-items:center">
+        <a href="/main"         class="btn btn--ghost">Головна</a>
+        <a href="/dashboard"    class="btn btn--ghost">Дашборд</a>
+        <a href="/add-news"     class="btn btn--ghost">Додати</a>
+        <a href="/my-dashboard" class="btn btn--ghost">Мій кабінет</a>
+        <div id="navUser" style="display:flex;align-items:center;gap:8px"></div>
+    </nav>
+</header>
+
+<!-- ═══════════ BACK BREADCRUMB ═══════════ -->
+<div class="art-breadcrumb">
+    <a href="/main" class="art-back-link">← Назад до новин</a>
+</div>
+
+<!-- ═══════════ MAIN LAYOUT ═══════════ -->
+<div class="art-layout" id="artLayout">
+
+    <!-- LEFT: article content -->
+    <main class="art-content" id="artContent">
+        <!-- Skeleton while loading -->
+        <div class="art-skeleton" id="artSkeleton">
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+            <div class="skeleton-line skeleton-img"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line" style="width:75%"></div>
+        </div>
+
+        <!-- Actual article (hidden until loaded) -->
+        <div id="artBody" style="display:none;">
+            <div class="art-meta" id="artMeta"></div>
+            <h1 class="art-title" id="artTitle"></h1>
+            <div class="art-meta art-meta--sub" id="artSubMeta"></div>
+            <div class="art-image-wrap" id="artImageWrap"></div>
+            <div class="art-description" id="artDescription"></div>
+
+            <!-- Full text collapsible -->
+            <div class="art-fulltext-wrap" id="artFulltextWrap" style="display:none;">
+                <div class="art-fulltext" id="artFulltext"></div>
+            </div>
+            <button class="btn btn--ghost art-fulltext-btn" id="artFulltextBtn" style="display:none;"
+                    onclick="toggleFullText()">Показати повний текст</button>
+
+            <div class="art-source-link" id="artSourceLink"></div>
+        </div>
+
+        <!-- Error state -->
+        <div id="artError" style="display:none;" class="art-error">
+            <p>Не вдалося завантажити статтю.</p>
+            <a href="/main" class="btn btn--outline">Повернутись</a>
+        </div>
+    </main>
+
+    <!-- RIGHT: analysis panel -->
+    <aside class="art-sidebar" id="artSidebar">
+        <div class="art-analysis-panel" id="analysisPanel">
+
+            <!-- ═══ SHARED CONFIG PANEL (one instance, used by both states) ═══ -->
+            <div id="sharedConfig" style="display:none;margin-bottom:12px;">
+                <div class="ap-config__body" style="margin-bottom:0;">
+                    <!-- Linguistics layer -->
+                    <div class="apc-layer">
+                        <div class="apc-layer__hrow">
+                            <label class="apc-layer__header">
+                                <input type="checkbox" id="artOptLinguistic" checked
+                                       onchange="toggleLayerSubsArt('linguistic',this.checked)">
+                                <span class="apc-layer__name">Лінгвістика</span>
+                                <span class="apc-layer__score">0–35</span>
+                            </label>
+                            <button class="minfo-btn" onclick="toggleMInfo('artOptLinguistic',this,event)" title="Детальніше">ⓘ</button>
+                        </div>
+                        <div class="minfo-panel" id="minfop-artOptLinguistic"></div>
+                        <div class="apc-subs" id="artSubs-linguistic">
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubHedge" checked><span>Хедж-слова</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubHedge',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubHedge"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubClickbait" checked><span>Клікбейт</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubClickbait',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubClickbait"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubEmotional" checked><span>Емоції</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubEmotional',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubEmotional"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubManipulation" checked><span>Маніпуляції</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubManipulation',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubManipulation"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubConspiracy" checked><span>Конспірологія</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubConspiracy',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubConspiracy"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubAnonSources" checked><span>Анонімна атрибуція</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubAnonSources',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubAnonSources"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubCitationDensity" checked><span>Щільність цитат</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubCitationDensity',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubCitationDensity"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubHeadlineConsistency" checked><span>Узгодженість заголовку</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubHeadlineConsistency',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubHeadlineConsistency"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubBetteridge" checked><span>Закон Беттерідж</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubBetteridge',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubBetteridge"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Cross-source layer -->
+                    <div class="apc-layer">
+                        <div class="apc-layer__hrow">
+                            <label class="apc-layer__header">
+                                <input type="checkbox" id="artOptCrossSource" checked>
+                                <span class="apc-layer__name">Крос-перевірка</span>
+                                <span class="apc-layer__score">0–35</span>
+                            </label>
+                            <button class="minfo-btn" onclick="toggleMInfo('artOptCrossSource',this,event)" title="Детальніше">ⓘ</button>
+                        </div>
+                        <div class="minfo-panel" id="minfop-artOptCrossSource"></div>
+                    </div>
+                    <!-- Fact-check layer -->
+                    <div class="apc-layer">
+                        <div class="apc-layer__hrow">
+                            <label class="apc-layer__header">
+                                <input type="checkbox" id="artOptFactCheck" checked
+                                       onchange="toggleLayerSubsArt('factcheck',this.checked)">
+                                <span class="apc-layer__name">Факт-чекінг</span>
+                                <span class="apc-layer__score">0–30</span>
+                            </label>
+                            <button class="minfo-btn" onclick="toggleMInfo('artOptFactCheck',this,event)" title="Детальніше">ⓘ</button>
+                        </div>
+                        <div class="minfo-panel" id="minfop-artOptFactCheck"></div>
+                        <div class="apc-subs" id="artSubs-factcheck">
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubSourceRep" checked><span>Репутація домену</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubSourceRep',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubSourceRep"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubClaimBuster" checked><span>ClaimBuster</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubClaimBuster',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubClaimBuster"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubRss" checked><span>RSS-перевірка</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubRss',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubRss"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubExtendedUrl" checked><span>Розширений URL</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubExtendedUrl',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubExtendedUrl"></div>
+                            </div>
+                            <div class="apc-sub-row">
+                                <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artSubRecycledNews" checked><span>Перевидана новина</span></label><button class="minfo-btn" onclick="toggleMInfo('artSubRecycledNews',this,event)">ⓘ</button></div>
+                                <div class="minfo-panel" id="minfop-artSubRecycledNews"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Extra metrics -->
+                    <div class="apc-extras">
+                        <div class="apc-sub-row">
+                            <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artOptSentiment" checked><span>Тональність</span></label><button class="minfo-btn" onclick="toggleMInfo('artOptSentiment',this,event)">ⓘ</button></div>
+                            <div class="minfo-panel" id="minfop-artOptSentiment"></div>
+                        </div>
+                        <div class="apc-sub-row">
+                            <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artOptReadability" checked><span>Читабельність</span></label><button class="minfo-btn" onclick="toggleMInfo('artOptReadability',this,event)">ⓘ</button></div>
+                            <div class="minfo-panel" id="minfop-artOptReadability"></div>
+                        </div>
+                        <div class="apc-sub-row">
+                            <div class="apc-sub-row__main"><label class="apc-sub"><input type="checkbox" id="artOptWikipedia" checked><span>Wikipedia</span></label><button class="minfo-btn" onclick="toggleMInfo('artOptWikipedia',this,event)">ⓘ</button></div>
+                            <div class="minfo-panel" id="minfop-artOptWikipedia"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div class="ap-loading" id="apLoading">
+                <div class="spinner"></div>
+                <span>Завантаження...</span>
+            </div>
+
+            <!-- Guest state -->
+            <div class="ap-state" id="apGuest" style="display:none;">
+                <div class="ap-state__icon">🔒</div>
+                <h3 class="ap-state__title">Увійдіть для аналізу</h3>
+                <p class="ap-state__text">Увійдіть або зареєструйтесь, щоб переглянути аналіз достовірності цієї статті.</p>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+                    <a href="/login"    class="btn btn--outline" style="justify-content:center;">Увійти</a>
+                    <a href="/register" class="btn btn--ghost"   style="justify-content:center;">Реєстрація</a>
+                </div>
+            </div>
+
+            <!-- No analysis state -->
+            <div id="apNoAnalysis" style="display:none;">
+                <div class="ap-state">
+                    <div class="ap-state__icon">📊</div>
+                    <h3 class="ap-state__title">Аналіз відсутній</h3>
+                    <p class="ap-state__text">Запустіть аналіз достовірності або налаштуйте методи.</p>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:4px;">
+                    <button class="btn btn--ghost" style="flex:1;justify-content:center;font-size:12px;"
+                            onclick="toggleSharedConfig()">Налаштування</button>
+                    <button class="btn btn--outline" style="flex:1;justify-content:center;"
+                            onclick="runAnalysis()">Запустити</button>
+                </div>
+            </div>
+
+            <!-- Analysis running state -->
+            <div class="ap-state" id="apRunning" style="display:none;">
+                <div class="spinner" style="width:40px;height:40px;margin:0 auto;"></div>
+                <h3 class="ap-state__title" style="margin-top:16px;">Аналізуємо...</h3>
+                <p class="ap-state__text">Це може зайняти кілька секунд.</p>
+            </div>
+
+            <!-- Analysis ready -->
+            <div id="apResult" style="display:none;">
+                <div class="ap-header">
+                    <span class="ap-label">Аналіз достовірності</span>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn btn--ghost ap-reanalyze" onclick="toggleSharedConfig()" title="Налаштування">
+                            Налаш.
+                        </button>
+                        <button class="btn btn--ghost ap-reanalyze" id="reanalyzeBtn" onclick="reanalyze()" title="Перезапустити аналіз">
+                            Оновити
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gauge -->
+                <div class="gauge-wrap">
+                    <svg class="gauge-svg" viewBox="0 0 120 120">
+                        <circle class="gauge-track" cx="60" cy="60" r="50"/>
+                        <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50"
+                                stroke-dasharray="314.16" stroke-dashoffset="314.16"/>
+                    </svg>
+                    <div class="gauge-center">
+                        <span class="gauge-score" id="gaugeScore">—</span>
+                        <span class="gauge-label" id="gaugeLabel">—</span>
+                    </div>
+                </div>
+
+                <!-- Score bars -->
+                <div class="score-bars" id="scoreBars">
+                    <div class="score-bar-row">
+                        <span class="score-bar-name">Лінгвістика</span>
+                        <div class="score-bar-track">
+                            <div class="score-bar-fill score-bar-fill--linguistic" id="barLinguistic" style="width:0%"></div>
+                        </div>
+                        <span class="score-bar-val" id="valLinguistic">—</span>
+                    </div>
+                    <div class="score-bar-row">
+                        <span class="score-bar-name">Крос-перевірка</span>
+                        <div class="score-bar-track">
+                            <div class="score-bar-fill score-bar-fill--cross" id="barCross" style="width:0%"></div>
+                        </div>
+                        <span class="score-bar-val" id="valCross">—</span>
+                    </div>
+                    <div class="score-bar-row">
+                        <span class="score-bar-name">Факт-чек</span>
+                        <div class="score-bar-track">
+                            <div class="score-bar-fill score-bar-fill--fact" id="barFact" style="width:0%"></div>
+                        </div>
+                        <span class="score-bar-val" id="valFact">—</span>
+                    </div>
+                </div>
+
+                <!-- Analysis meta -->
+                <div class="ap-meta" id="apMeta"></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- ═══════════ LANGUAGE DISCLAIMER ═══════════ -->
+<div class="lang-disclaimer" id="langDisclaimer" style="display:none;max-width:860px;margin:0 auto 12px;"></div>
+
+<!-- ═══════════ ANALYSIS TABS ═══════════ -->
+<div class="art-tabs-section" id="artTabsSection" style="display:none;">
+    <div class="art-tabs-inner">
+        <div class="tab-nav" role="tablist">
+            <button class="tab-btn tab-btn--active" role="tab" onclick="switchAnalysisTab('overview',this)">Огляд</button>
+            <button class="tab-btn" role="tab" onclick="switchAnalysisTab('linguistic',this)">Лінгвістика</button>
+            <button class="tab-btn" role="tab" onclick="switchAnalysisTab('cross',this)">Крос-перевірка</button>
+            <button class="tab-btn" role="tab" onclick="switchAnalysisTab('fact',this)">Факт-чек</button>
+            <button class="tab-btn" role="tab" onclick="switchAnalysisTab('readability',this)">Читабельність</button>
+        </div>
+
+        <!-- Tab: Огляд -->
+        <div class="tab-panel tab-panel--active" id="tab-overview">
+            <div class="overview-grid" id="overviewGrid"></div>
+        </div>
+
+        <!-- Tab: Лінгвістика -->
+        <div class="tab-panel" id="tab-linguistic">
+            <div class="ling-grid" id="lingGrid"></div>
+        </div>
+
+        <!-- Tab: Крос-перевірка -->
+        <div class="tab-panel" id="tab-cross">
+            <div class="cross-grid" id="crossGrid"></div>
+        </div>
+
+        <!-- Tab: Факт-чек -->
+        <div class="tab-panel" id="tab-fact">
+            <div class="fact-grid" id="factGrid"></div>
+        </div>
+
+        <!-- Tab: Читабельність -->
+        <div class="tab-panel" id="tab-readability">
+            <div class="read-grid" id="readGrid"></div>
+        </div>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <span>© 2025 Fistserious</span>
+    <div class="site-footer__links">
+        <a href="/terms">Умови використання</a>
+        <a href="/terms#privacy">Конфіденційність</a>
+    </div>
+</footer>
+
+<script src="/js/auth.js"></script>
+<script src="/js/method-info-data.js"></script>
+<script src="/js/article.js"></script>
+</body>
+</html>

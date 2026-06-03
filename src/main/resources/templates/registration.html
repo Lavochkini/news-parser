@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <meta charset="UTF-8">
     <title>Fistserios — Registration</title>
@@ -20,6 +20,9 @@
         <div id="globalError" class="auth-error"></div>
 
         <form id="registrationForm" novalidate>
+        <form id="registrationForm">
+            <input type="text" name="username" placeholder="Username" />
+            <div id="usernameError" class="error-label"></div>
 
             <div class="field">
                 <label class="field__label" for="username">Username</label>

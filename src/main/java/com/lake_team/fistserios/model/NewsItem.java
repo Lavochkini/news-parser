@@ -41,6 +41,5 @@ public class NewsItem {
     @Indexed
     private NewsSourceType sourceType;
 
-    // Мітка з датасету: "TRUE" або "FAKE" (null для живих новин)
     private String datasetLabel;
 }

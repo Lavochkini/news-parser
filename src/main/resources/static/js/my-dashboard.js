@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderNav();
     if (!Auth.isLoggedIn()) {
-        document.getElementById('notLoggedIn').style.display = 'block';
+        window.location.href = '/login';
         return;
     }
+    renderNav();
     document.getElementById('dashContent').style.display = 'block';
     loadPersonalDashboard();
 });
@@ -29,7 +29,10 @@ function renderNav() {
     const nav = document.getElementById('navUser');
     if (!nav) return;
     if (Auth.isLoggedIn()) {
+        const adminLink = Auth.getRole() === 'ADMIN'
+            ? `<a href="/admin" class="btn btn--ghost" style="color:#f87171">Адмін</a>` : '';
         nav.innerHTML = `
+            ${adminLink}
             <span class="navbar__username">${escHtml(Auth.getUsername())}</span>
             <button class="btn btn--ghost" onclick="Auth.logout()">Вийти</button>`;
     } else {
@@ -184,6 +187,9 @@ function openArticleModal(mode, index) {
     document.getElementById('modalDate').textContent    = formatDate(article.publishedAt);
     document.getElementById('modalDesc').textContent    = article.description || '';
     document.getElementById('modalReadLink').href       = article.url || '#';
+    const artId = article.newsItemId || article.id;
+    const detailLink = document.getElementById('modalDetailLink');
+    if (detailLink) detailLink.href = artId ? `/article/${artId}` : '#';
 
     const fullEl = document.getElementById('modalFullText');
     if (article.fullContent && article.fullContent !== article.description) {
@@ -251,18 +257,48 @@ function modalOverlayClick(e) {
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+/* ── Layer sub-method toggling ── */
+function toggleLayerSubs(layer, enabled) {
+    const wrap = document.getElementById(`subs-${layer}`);
+    if (!wrap) return;
+    wrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.disabled = !enabled;
+        cb.parentElement.style.opacity = enabled ? '1' : '0.4';
+    });
+}
+
 /* ── Run analysis ── */
 function runManualAnalysis() {
     if (!currentArticle) return;
     const id = currentArticle.newsItemId || currentArticle.id;
     if (!id) return;
 
+    const cb = id => { const el = document.getElementById(id); return el ? el.checked : true; };
     const options = {
-        runLinguistic:  document.getElementById('optLinguistic').checked,
-        runCrossSource: document.getElementById('optCrossSource').checked,
-        runFactCheck:   document.getElementById('optFactCheck').checked,
-        runSentiment:   document.getElementById('optSentiment').checked,
-        runReadability: document.getElementById('optReadability').checked,
+        runLinguistic:  cb('optLinguistic'),
+        linguistic: {
+            hedgeWords:            cb('subHedge'),
+            clickbait:             cb('subClickbait'),
+            emotional:             cb('subEmotional'),
+            manipulation:          cb('subManipulation'),
+            conspiracy:            cb('subConspiracy'),
+            anonymousSources:      cb('subAnonSources'),
+            citationDensity:       cb('subCitationDensity'),
+            headlineConsistency:   cb('subHeadlineConsistency'),
+            betteridge:            cb('subBetteridge'),
+        },
+        runCrossSource: cb('optCrossSource'),
+        runFactCheck:   cb('optFactCheck'),
+        factCheck: {
+            sourceReputation:    cb('subSourceRep'),
+            claimBuster:         cb('subClaimBuster'),
+            rssCheck:            cb('subRss'),
+            extendedUrlAnalysis: cb('subExtendedUrl'),
+            recycledNews:        cb('subRecycledNews'),
+        },
+        runSentiment:   cb('optSentiment'),
+        runReadability: cb('optReadability'),
+        runWikipedia:   cb('optWikipedia'),
     };
 
     const btn = document.getElementById('analyzeBtn');
@@ -282,6 +318,18 @@ function runManualAnalysis() {
 /* ── Render results ── */
 function renderAnalysisResults(r) {
     document.getElementById('analysisResults').style.display = 'block';
+
+    // Language disclaimer
+    const disclaimer = document.getElementById('langDisclaimer');
+    if (disclaimer) {
+        if (r.languageNote) {
+            disclaimer.textContent = r.languageNote;
+            disclaimer.style.display = 'flex';
+        } else {
+            disclaimer.style.display = 'none';
+        }
+    }
+
     const score = r.credibilityScore ?? 0;
     document.getElementById('scoreValue').textContent = score;
     document.getElementById('scoreCircle').className = 'score-display__circle ' + scoreClass(score);
@@ -406,6 +454,7 @@ window.openArticleModal  = openArticleModal;
 window.closeModal        = closeModal;
 window.modalOverlayClick = modalOverlayClick;
 window.runManualAnalysis = runManualAnalysis;
+window.toggleLayerSubs   = toggleLayerSubs;
 window.toggleFavorite    = toggleFavorite;
 window.askDelete         = askDelete;
 window.cancelDelete      = cancelDelete;
