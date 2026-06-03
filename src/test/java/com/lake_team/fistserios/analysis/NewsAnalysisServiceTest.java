@@ -35,8 +35,6 @@ class NewsAnalysisServiceTest {
     @InjectMocks
     private NewsAnalysisService service;
 
-    // ── Загальні хелпери ────────────────────────────────────────────────
-
     private NewsItem englishItem(String id) {
         return NewsItem.builder()
                 .id(id)
@@ -95,7 +93,6 @@ class NewsAnalysisServiceTest {
                 .build();
     }
 
-    // ── Кешування ────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("analyzeArticle: існуючий аналіз → повертає кешований, без повторного аналізу")
@@ -142,8 +139,6 @@ class NewsAnalysisServiceTest {
         assertThat(result).isNotNull();
     }
 
-    // ── analyzeManual: завжди перезаписує ────────────────────────────────
-
     @Test
     @DisplayName("analyzeManual: видаляє попередній результат перед новим аналізом")
     void analyzeManual_deletesExisting_beforeReanalysis() {
@@ -172,8 +167,6 @@ class NewsAnalysisServiceTest {
         verify(analysisRepository).deleteById("old-id");
     }
 
-    // ── Мова: вимикаємо непрацюючі методи ────────────────────────────────
-
     @Test
     @DisplayName("Українська мова → sentiment і readability НЕ викликаються")
     void ukrainianLanguage_skipsSentimentAndReadability() {
@@ -201,7 +194,6 @@ class NewsAnalysisServiceTest {
 
         service.analyzeArticle(newsId);
 
-        // sentiment і readability не мають викликатись
         verify(sentimentAnalyzer, never()).analyze(any());
         verify(readabilityAnalyzer, never()).analyze(any());
     }
@@ -237,7 +229,6 @@ class NewsAnalysisServiceTest {
         assertThat(captor.getValue().getDetectedLanguage()).isEqualTo("UKRAINIAN");
     }
 
-    // ── Конспірологія: cap 40 ────────────────────────────────────────────
 
     @Test
     @DisplayName("Конспірологія виявлена → загальний score ≤ 40")
@@ -264,6 +255,9 @@ class NewsAnalysisServiceTest {
         when(languageDetector.isEnglishCompatible(any())).thenReturn(true);
         when(languageDetector.buildNote(any())).thenReturn(null);
         when(linguisticAnalyzer.analyze(eq(item), any())).thenReturn(conspiracyResult);
+        when(crossSourceAnalyzer.analyze(item)).thenReturn(
+                CrossSourceResult.builder().score(20).sourcesConfirmed(1)
+                        .confirmedSources(List.of()).keywordsUsed("test").build());
         when(factCheckAnalyzer.analyze(eq(item), any())).thenReturn(emptyFactCheck(30));
         when(sentimentAnalyzer.analyze(item))
                 .thenReturn(new SentimentAnalyzer.SentimentResult(0.0, "NEUTRAL", 0, 0));
@@ -277,9 +271,6 @@ class NewsAnalysisServiceTest {
         when(analysisRepository.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
 
         service.analyzeArticle(newsId);
-
-        // crossSourceScore = 0 (бо конспірологія), linguistic = 15, fact = 30 → raw = 45
-        // але cap ≤ 40
         assertThat(captor.getValue().getCredibilityScore()).isLessThanOrEqualTo(40);
     }
 }
