@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Fistserios — Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fistserious — Реєстрація</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
@@ -10,69 +11,118 @@
 <div class="auth-wrapper">
 
     <div class="auth-image">
-        <img th:src="@{/images/leftImage.png}" alt="" />
+        <img th:src="@{/images/leftImage.png}" alt="Snake" />
     </div>
 
     <div class="auth-card">
-        <div class="auth-logo">Fistserios</div>
-        <div class="auth-subtitle">Create your account</div>
+        <div class="auth-logo">Fistserious</div>
+        <div class="auth-subtitle">Створіть акаунт — це займе хвилину</div>
 
-        <div id="globalError" class="auth-error"></div>
-
-        <form id="registrationForm" novalidate>
-
-            <div class="field">
-                <label class="field__label" for="username">Username</label>
-                <div class="field__wrap">
-                    <input class="field__input" id="username"
-                           type="text" name="username" placeholder="Enter username" autocomplete="username" />
-                </div>
-                <div class="field__hint field__hint--error" id="usernameError"></div>
+        <!-- Progress bar -->
+        <div class="steps">
+            <div class="steps__bar">
+                <div class="steps__fill" id="stepsFill"></div>
             </div>
-
-            <div class="field">
-                <label class="field__label" for="email">E-mail</label>
-                <div class="field__wrap">
-                    <input class="field__input" id="email"
-                           type="text" name="email" placeholder="you@example.com" autocomplete="email" />
-                </div>
-                <div class="field__hint field__hint--error" id="emailError"></div>
+            <div class="steps__labels">
+                <span class="steps__label active" id="stepLabel1">Email</span>
+                <span class="steps__label"         id="stepLabel2">Username</span>
+                <span class="steps__label"         id="stepLabel3">Пароль</span>
             </div>
-
-            <div class="field">
-                <label class="field__label" for="password">Password</label>
-                <div class="field__wrap">
-                    <input class="field__input" id="password"
-                           type="password" name="password" placeholder="Create a password" autocomplete="new-password" />
-                    <button type="button" class="field__toggle" id="togglePassword">Show</button>
-                </div>
-                <div class="field__hint field__hint--error" id="passwordError"></div>
-            </div>
-
-            <div class="field">
-                <label class="field__label" for="confirmPassword">Confirm password</label>
-                <div class="field__wrap">
-                    <input class="field__input" id="confirmPassword"
-                           type="password" name="confirmPassword" placeholder="Repeat password" autocomplete="new-password" />
-                    <button type="button" class="field__toggle" id="toggleConfirm">Show</button>
-                </div>
-                <div class="field__hint field__hint--error" id="confirmPasswordError"></div>
-            </div>
-
-            <button type="submit" class="auth-btn">Create account</button>
-
-        </form>
-
-        <div class="auth-links">
-            <a th:href="@{/login}" class="link-primary">Already have an account? Log in</a>
-            <a th:href="@{/main}"  class="link-guest">Continue as guest</a>
         </div>
-    </div>
+
+        <!-- Global error banner -->
+        <div class="auth-error" id="globalError"></div>
+
+        <!-- ── STEP 1: Email ── -->
+        <div class="step-panel" id="step1">
+            <div class="field">
+                <label class="field__label" for="fEmail">Ваш Email</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="fEmail" type="email"
+                           placeholder="user@example.com" autocomplete="email" />
+                    <span class="field__status" id="emailStatus"></span>
+                </div>
+                <div class="field__hint" id="emailHint"></div>
+            </div>
+            <button class="auth-btn" id="btn1" onclick="goStep2()">Далі →</button>
+        </div>
+
+        <!-- ── STEP 2: Username ── -->
+        <div class="step-panel step-panel--hidden" id="step2">
+            <div class="step-summary" id="summaryEmail"></div>
+            <div class="field">
+                <label class="field__label" for="fUsername">Придумайте Username</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="fUsername" type="text"
+                           placeholder="мінімум 3 символи" autocomplete="off" maxlength="30" />
+                    <span class="field__status" id="usernameStatus"></span>
+                </div>
+                <div class="field__hint" id="usernameHint"></div>
+            </div>
+            <div class="step-actions">
+                <button class="auth-btn auth-btn--ghost" onclick="goStep1()">← Назад</button>
+                <button class="auth-btn" id="btn2" onclick="goStep3()">Далі →</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 3: Password ── -->
+        <div class="step-panel step-panel--hidden" id="step3">
+            <div class="step-summary" id="summaryUser"></div>
+            <div class="field">
+                <label class="field__label" for="fPassword">Пароль</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="fPassword" type="password"
+                           placeholder="мінімум 6 символів" autocomplete="new-password" />
+                    <button type="button" class="field__toggle" id="togglePassword"
+                            onclick="togglePwd('fPassword','togglePassword')">Показати</button>
+                </div>
+                <div class="strength-bar" id="strengthBar" style="display:none">
+                    <div class="strength-bar__seg" id="seg1"></div>
+                    <div class="strength-bar__seg" id="seg2"></div>
+                    <div class="strength-bar__seg" id="seg3"></div>
+                    <div class="strength-bar__seg" id="seg4"></div>
+                </div>
+                <div class="field__hint" id="passwordHint"></div>
+            </div>
+            <div class="field">
+                <label class="field__label" for="fConfirm">Підтвердіть пароль</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="fConfirm" type="password"
+                           placeholder="Повторіть пароль" autocomplete="new-password" />
+                    <button type="button" class="field__toggle" id="toggleConfirm"
+                            onclick="togglePwd('fConfirm','toggleConfirm')">Показати</button>
+                </div>
+                <div class="field__hint" id="confirmHint"></div>
+            </div>
+            <label class="terms-consent" id="termsLabel">
+                <input type="checkbox" id="termsCheck" onchange="onTermsChange()">
+                <span>
+                    Я прочитав(-ла) та погоджуюсь з
+                    <a href="/terms" target="_blank" class="terms-link" onclick="event.stopPropagation()">Умовами використання</a>
+                    та
+                    <a href="/terms#privacy" target="_blank" class="terms-link" onclick="event.stopPropagation()">Політикою конфіденційності</a>
+                </span>
+            </label>
+            <div class="field__hint" id="termsHint" style="color:#f85149;margin-bottom:8px;display:none">
+                Необхідно прийняти умови для продовження
+            </div>
+            <div class="step-actions">
+                <button class="auth-btn auth-btn--ghost" onclick="goStep2()">← Назад</button>
+                <button class="auth-btn" id="btn3" onclick="submitForm()" disabled>Зареєструватись</button>
+            </div>
+        </div>
+
+    </div><!-- /auth-card -->
 
     <div class="auth-image">
-        <img th:src="@{/images/rightImage.png}" alt="" />
+        <img th:src="@{/images/rightImage.png}" alt="Snake" />
     </div>
 
+</div>
+
+<div class="auth-links" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:24px">
+    <a href="/login" class="link-primary">Вже є акаунт? Увійти</a>
+    <a href="/main"  class="link-guest">Продовжити як гість</a>
 </div>
 
 <script th:src="@{/js/auth.js}"></script>

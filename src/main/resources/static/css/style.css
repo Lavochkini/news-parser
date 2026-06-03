@@ -101,23 +101,12 @@ body {
     letter-spacing: .5px;
     margin-bottom: 6px;
 }
-.field__toggle:hover { color: var(--text); }
 
 .field__wrap {
     position: relative;
     display: flex;
     align-items: center;
 }
-.strength-bar__seg {
-    flex: 1;
-    height: 3px;
-    border-radius: 2px;
-    background: var(--border);
-    transition: background .3s;
-}
-.strength-bar__seg--weak   { background: var(--error); }
-.strength-bar__seg--medium { background: var(--warning); }
-.strength-bar__seg--strong { background: var(--success); }
 
 .field__input {
     width: 100%;
@@ -136,9 +125,9 @@ body {
     border-color: var(--border-focus);
     box-shadow: 0 0 0 3px rgba(88,166,255,.12);
 }
-.field__input--error   { border-color: var(--error)   !important; box-shadow: 0 0 0 3px rgba(248,81,73,.10)  !important; }
-.field__input--success { border-color: var(--success) !important; box-shadow: 0 0 0 3px rgba(63,185,80,.10)  !important; }
-.field__input--loading { border-color: var(--warning) !important; }
+.field__input--error  { border-color: var(--error)   !important; box-shadow: 0 0 0 3px rgba(248,81,73,.10) !important; }
+.field__input--success{ border-color: var(--success) !important; box-shadow: 0 0 0 3px rgba(63,185,80,.10) !important; }
+.field__input--loading{ border-color: var(--warning) !important; }
 
 /* Status icon inside field */
 .field__status {
@@ -198,6 +187,72 @@ body {
 .strength-bar__seg--strong { background: var(--success); }
 
 /* ═══════════════════════════════════════
+   MULTI-STEP WIZARD
+═══════════════════════════════════════ */
+.steps { margin-bottom: 28px; }
+.steps__bar {
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.steps__fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+    width: 33.33%;
+}
+.steps__labels {
+    display: flex;
+    justify-content: space-between;
+}
+.steps__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    transition: color .3s;
+}
+.steps__label.active { color: var(--accent); }
+.steps__label.done   { color: var(--success); }
+
+/* Step panels */
+.step-panel { animation: stepIn .3s ease both; }
+.step-panel--hidden { display: none; }
+
+@keyframes stepIn {
+    from { opacity: 0; transform: translateX(18px); }
+    to   { opacity: 1; transform: translateX(0);    }
+}
+@keyframes stepBack {
+    from { opacity: 0; transform: translateX(-18px); }
+    to   { opacity: 1; transform: translateX(0);     }
+}
+.step-panel--back { animation: stepBack .3s ease both; }
+
+/* Summary chip */
+.step-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+.step-summary strong { color: var(--text); }
+
+/* Step action row */
+.step-actions { display: flex; gap: 10px; }
+.step-actions .auth-btn { flex: 1; }
+
+/* ═══════════════════════════════════════
    SUBMIT BUTTON
 ═══════════════════════════════════════ */
 .auth-btn {
@@ -254,7 +309,18 @@ body {
     gap: 24px;
     margin-top: 20px;
 }
-/* ── Terms consent checkbox (registration) ── */
+.auth-links a {
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s;
+}
+.auth-links a.link-primary       { color: var(--accent); }
+.auth-links a.link-primary:hover { color: var(--accent-hover); }
+.auth-links a.link-guest         { color: var(--text-muted); }
+.auth-links a.link-guest:hover   { color: var(--text); }
+
+/* ── Terms consent checkbox ── */
 .terms-consent {
     display: flex;
     align-items: flex-start;
@@ -277,7 +343,7 @@ body {
 .terms-link { color: var(--accent); text-decoration: none; font-weight: 500; }
 .terms-link:hover { text-decoration: underline; }
 
-/* ── Terms note (login page) ── */
+/* ── Terms note (login) ── */
 .terms-note {
     text-align: center;
     font-size: 12px;
