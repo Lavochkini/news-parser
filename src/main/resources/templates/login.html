@@ -1,39 +1,75 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Fistserios Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fistserious — Вхід</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<div class="login-image">
-    <img th:src="@{/images/leftImage.png}" alt="Left Login Image" />
-</div>
 
-<div class="login-container">
-    <div class="login-form">
-        <h1 class="logo">Fistserios</h1>
-        <h2>Login</h2>
+<div class="auth-wrapper">
 
-        <form id="loginForm">
-            <input type="text" name="email" placeholder="E-mail" />
-            <div id="emailError" class="error-label"></div>
+    <!-- Ліве зображення -->
+    <div class="auth-image">
+        <img th:src="@{/images/leftImage.png}" alt="Snake" />
+    </div>
 
-            <input type="password" name="password" placeholder="Password" />
-            <div id="passwordError" class="error-label"></div>
+    <!-- Картка форми -->
+    <div class="auth-card">
+        <div class="auth-logo">Fistserious</div>
+        <div class="auth-subtitle">Вхід до системи аналізу новин</div>
 
-            <button type="submit">Login</button>
+        <!-- Глобальна помилка -->
+        <div class="auth-error" id="globalError"></div>
+
+        <form id="loginForm" novalidate autocomplete="off">
+
+            <!-- Email або Username -->
+            <div class="field">
+                <label class="field__label" for="fLogin">Email або Username</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="fLogin" name="login"
+                           type="text" placeholder="user@example.com або username"
+                           autocomplete="username" />
+                    <span class="field__status" id="loginStatus"></span>
+                </div>
+                <div class="field__hint" id="loginHint"></div>
+            </div>
+
+            <!-- Пароль -->
+            <div class="field">
+                <label class="field__label" for="fPassword">Пароль</label>
+                <div class="field__wrap">
+                    <input class="field__input" id="fPassword" name="password"
+                           type="password" placeholder="Введіть пароль"
+                           autocomplete="current-password" />
+                    <button type="button" class="field__toggle" id="togglePassword"
+                            onclick="togglePwd('fPassword','togglePassword')" title="Показати/приховати">Показати</button>
+                </div>
+                <div class="field__hint" id="passwordHint"></div>
+            </div>
+
+            <button class="auth-btn" id="submitBtn" type="submit">Увійти</button>
+            <p class="terms-note">
+                Входячи в систему, ви підтверджуєте згоду з
+                <a href="/terms" target="_blank">Умовами використання</a>.
+            </p>
         </form>
 
-        <div class="links">
-            <a th:href="@{/register}" class="link-blue">Registration</a>
-            <a th:href="@{/main}" class="link-green">Guest</a>
+        <div class="auth-divider">або</div>
+
+        <div class="auth-links">
+            <a href="/register" class="link-primary">Реєстрація</a>
+            <a href="/main"     class="link-guest">Продовжити як гість</a>
         </div>
     </div>
-</div>
 
-<div class="login-image">
-    <img th:src="@{/images/rightImage.png}" alt="Right Login Image" />
+    <!-- Праве зображення -->
+    <div class="auth-image">
+        <img th:src="@{/images/rightImage.png}" alt="Snake" />
+    </div>
+
 </div>
 
 <script th:src="@{/js/auth.js}"></script>

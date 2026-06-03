@@ -26,7 +26,25 @@ public class DatasetImportController {
         return ResponseEntity.ok(Map.of(
                 "imported", result.imported(),
                 "skipped",  result.skipped(),
-                "message",  "Import complete. Run POST /analysis/batch to analyze."
+                "message",  "Import complete."
+        ));
+    }
+
+    /** Імпортує тільки TRUE або тільки FAKE статті з одного CSV */
+    @PostMapping("/import-single")
+    public ResponseEntity<Map<String, Object>> importSingle(
+            @RequestParam String csvPath,
+            @RequestParam(defaultValue = "TRUE") String label,
+            @RequestParam(defaultValue = "100") int limit) {
+
+        DatasetImportService.ImportResult result =
+                datasetImportService.importSingleLabel(csvPath, label.toUpperCase(), limit);
+
+        return ResponseEntity.ok(Map.of(
+                "label",    label.toUpperCase(),
+                "imported", result.imported(),
+                "skipped",  result.skipped(),
+                "message",  "Імпортовано " + result.imported() + " статей [" + label.toUpperCase() + "], пропущено дублікатів: " + result.skipped()
         ));
     }
 }

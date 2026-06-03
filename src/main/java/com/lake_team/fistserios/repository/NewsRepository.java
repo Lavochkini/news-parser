@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,6 +23,9 @@ public interface NewsRepository extends MongoRepository<NewsItem, String> {
             String category, NewsSourceType sourceType, Pageable pageable);
 
     Optional<NewsItem> findByUrl(String url);
+    Optional<NewsItem> findByTitle(String title);
 
     Optional<NewsItem> findTopByOrderByPublishedAtDesc();
+
+    List<NewsItem> findBySourceType(NewsSourceType sourceType);
 }

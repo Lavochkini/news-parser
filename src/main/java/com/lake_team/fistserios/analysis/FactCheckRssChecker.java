@@ -40,7 +40,6 @@ public class FactCheckRssChecker {
         List<String> keywords = extractKeywords(item.getTitle());
         if (keywords.isEmpty()) return neutral();
 
-        // Шукаємо спочатку в Snopes, потім PolitiFact
         RssCheckResult snopes = searchFeed(SNOPES_RSS, "Snopes", keywords);
         if (snopes.matchedTitle() != null) return snopes;
 
@@ -60,7 +59,7 @@ public class FactCheckRssChecker {
             Matcher m = TITLE_PATTERN.matcher(xml);
             boolean first = true;
             while (m.find()) {
-                if (first) { first = false; continue; } // пропускаємо заголовок каналу
+                if (first) { first = false; continue; }
                 titles.add(m.group(1).trim().toLowerCase());
             }
             return titles;

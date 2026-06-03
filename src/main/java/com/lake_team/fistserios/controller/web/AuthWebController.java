@@ -30,4 +30,16 @@ public class AuthWebController {
 
     @GetMapping("/my-dashboard")
     public String myDashboardPage() { return "my-dashboard"; }
+
+    @GetMapping("/add-news")
+    public String addNewsPage() { return "add-news"; }
+
+    @GetMapping("/admin")
+    public String adminPage() { return "admin"; }
+
+    @GetMapping("/article/{id}")
+    public String articlePage() { return "article"; }
+
+    @GetMapping("/terms")
+    public String termsPage() { return "terms"; }
 }

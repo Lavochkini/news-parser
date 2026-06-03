@@ -39,6 +39,8 @@ public class DatasetImportService {
         List<String[]> trueRows = readCsv(trueCsvPath);
         List<String[]> fakeRows = readCsv(fakeCsvPath);
 
+        log.info("CSV rows read: TRUE={}, FAKE={}", trueRows.size(), fakeRows.size());
+
         for (String[] row : trueRows.stream().limit(limitPerFile).toList()) {
             if (saveRow(row, "TRUE")) imported++; else skipped++;
         }
@@ -47,6 +49,19 @@ public class DatasetImportService {
         }
 
         log.info("Dataset import complete: {} imported, {} skipped (duplicates)", imported, skipped);
+        return new ImportResult(imported, skipped);
+    }
+
+    public ImportResult importSingleLabel(String csvPath, String label, int limit) {
+        List<String[]> rows = readCsv(csvPath);
+        log.info("CSV rows read for label={}: {}", label, rows.size());
+
+        int imported = 0, skipped = 0;
+        for (String[] row : rows.stream().limit(limit).toList()) {
+            if (saveRow(row, label)) imported++; else skipped++;
+        }
+
+        log.info("Import [{}] complete: {} imported, {} skipped", label, imported, skipped);
         return new ImportResult(imported, skipped);
     }
 

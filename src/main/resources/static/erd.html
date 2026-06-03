@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fistserious — Архітектура / ERD</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg:           #0d1117;
+    --surface:      #161b22;
+    --surface-2:    #21262d;
+    --border:       #30363d;
+    --text:         #e6edf3;
+    --text-muted:   #8b949e;
+    --accent:       #58a6ff;
+    --green:        #3fb950;
+    --purple:       #bc8cff;
+    --orange:       #d29922;
+    --red:          #f85149;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header .brand { font-weight: 700; font-size: 16px; color: var(--text); }
+  header nav { display: flex; gap: 8px; margin-left: auto; }
+  header a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: color .15s, background .15s;
+  }
+  header a:hover { color: var(--text); background: var(--surface-2); }
+
+  .page { max-width: 1400px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 32px; }
+
+  /* Tab bar */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .tab {
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Diagram wrapper */
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    overflow-x: auto;
+    min-height: 300px;
+  }
+
+  /* Mermaid theme overrides */
+  .diagram-wrap svg { max-width: 100%; }
+
+  /* Entity table (manual) */
+  .entity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .entity-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .entity-card__header {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .entity-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .entity-badge--doc    { background: rgba(88,166,255,.15); color: var(--accent); }
+  .entity-badge--enum   { background: rgba(188,140,255,.15); color: var(--purple); }
+  .entity-badge--embed  { background: rgba(63,185,80,.15);   color: var(--green); }
+  .entity-badge--dto    { background: rgba(210,153,34,.15);  color: var(--orange); }
+  .entity-badge--record { background: rgba(248,81,73,.15);   color: var(--red); }
+
+  .entity-card__fields { padding: 4px 0; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    padding: 5px 16px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .field-row:last-child { border-bottom: none; }
+  .field-row:hover { background: rgba(88,166,255,.04); }
+
+  .field-name { color: var(--text); font-family: 'SF Mono', Consolas, monospace; }
+  .field-name .pk  { color: var(--orange); font-size: 10px; margin-left: 4px; }
+  .field-name .uk  { color: var(--purple); font-size: 10px; margin-left: 4px; }
+  .field-name .fk  { color: var(--green);  font-size: 10px; margin-left: 4px; }
+  .field-type { color: var(--text-muted); font-family: 'SF Mono', Consolas, monospace; text-align: right; }
+  .field-type .generic { color: #79c0ff; }
+
+  /* Relations table */
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rel-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .rel-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .rel-table tbody tr:last-child td { border-bottom: none; }
+  .rel-table tbody tr:hover { background: rgba(88,166,255,.04); }
+  .rel-from { color: var(--accent); font-family: monospace; }
+  .rel-to   { color: var(--green);  font-family: monospace; }
+  .rel-card { color: var(--text-muted); font-size: 12px; }
+  .rel-label { font-size: 12px; color: var(--text-muted); font-style: italic; }
+  .rel-type-ref  { color: var(--accent); }
+  .rel-type-embed { color: var(--green); }
+  .rel-type-soft { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">Fistserious</span>
+  <nav>
+    <a href="/main">Стрічка новин</a>
+    <a href="/dashboard">Дашборд</a>
+    <a href="/my-dashboard">Мій кабінет</a>
+    <a href="/erd.html" style="color:var(--text);background:var(--surface-2)">ERD</a>
+  </nav>
+</header>
+
+<div class="page">
+  <h1>Архітектура проекту</h1>
+  <p class="subtitle">Entity-Relationship Diagram · MongoDB collections, embedded documents, зовнішні API-DTO</p>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('entities')">Сутності</button>
+    <button class="tab" onclick="switchTab('relations')">Зв'язки</button>
+    <button class="tab" onclick="switchTab('diagram')">Діаграма (Mermaid)</button>
+    <button class="tab" onclick="switchTab('api-dto')">API DTOs</button>
+  </div>
+
+  <!-- ── Panel: Entities ── -->
+  <div class="panel active" id="tab-entities">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div>MongoDB Document</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#bc8cff"></div>Enum</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div>Embedded document</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div>External API DTO</div>
+    </div>
+
+    <div class="entity-grid">
+
+      <!-- User -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(88,166,255,.08)">
+          <span>User</span>
+          <span class="entity-badge entity-badge--doc">Document · users</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">id <span class="pk">PK</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">username <span class="uk">UK</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">email <span class="uk">UK</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">password</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">role</span><span class="field-type">Role</span></div>
+          <div class="field-row"><span class="field-name">favoriteNewsIds <span class="fk">FK→news</span></span><span class="field-type"><span class="generic">Set&lt;String&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">createdAt</span><span class="field-type">LocalDateTime</span></div>
+          <div class="field-row"><span class="field-name">updatedAt</span><span class="field-type">LocalDateTime</span></div>
+        </div>
+      </div>
+
+      <!-- NewsItem -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(88,166,255,.08)">
+          <span>NewsItem</span>
+          <span class="entity-badge entity-badge--doc">Document · news</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">id <span class="pk">PK</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">description</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">fullContent</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">url <span class="uk">UK</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">imageUrl</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">publishedAt</span><span class="field-type">LocalDateTime</span></div>
+          <div class="field-row"><span class="field-name">source</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">category</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">sourceType</span><span class="field-type">NewsSourceType</span></div>
+          <div class="field-row"><span class="field-name">datasetLabel</span><span class="field-type">String</span></div>
+        </div>
+      </div>
+
+      <!-- NewsAnalysis -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(88,166,255,.08)">
+          <span>NewsAnalysis</span>
+          <span class="entity-badge entity-badge--doc">Document · news_analysis</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">id <span class="pk">PK</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">newsItemId <span class="uk">UK</span> <span class="fk">FK→news</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">credibilityScore</span><span class="field-type">int (0–100)</span></div>
+          <div class="field-row" style="background:rgba(88,166,255,.03)"><span class="field-name" style="color:var(--text-muted);font-size:11px">── Шар 1: Linguistic ──</span><span class="field-type" style="color:var(--text-muted);font-size:11px">0–35</span></div>
+          <div class="field-row"><span class="field-name">linguisticScore</span><span class="field-type">int</span></div>
+          <div class="field-row"><span class="field-name">hedgeWordsFound</span><span class="field-type"><span class="generic">List&lt;String&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">clickbaitIndicators</span><span class="field-type"><span class="generic">List&lt;String&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">emotionalWordsFound</span><span class="field-type"><span class="generic">List&lt;String&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">manipulationIndicators</span><span class="field-type"><span class="generic">List&lt;String&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">conspiracyIndicators</span><span class="field-type"><span class="generic">List&lt;String&gt;</span></span></div>
+          <div class="field-row" style="background:rgba(88,166,255,.03)"><span class="field-name" style="color:var(--text-muted);font-size:11px">── Шар 2: CrossSource ──</span><span class="field-type" style="color:var(--text-muted);font-size:11px">0–35</span></div>
+          <div class="field-row"><span class="field-name">crossSourceScore</span><span class="field-type">int</span></div>
+          <div class="field-row"><span class="field-name">sourcesConfirmed</span><span class="field-type">int</span></div>
+          <div class="field-row"><span class="field-name">confirmedSources</span><span class="field-type"><span class="generic">List&lt;String&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">keywordsUsed</span><span class="field-type">String</span></div>
+          <div class="field-row" style="background:rgba(88,166,255,.03)"><span class="field-name" style="color:var(--text-muted);font-size:11px">── Шар 3: FactCheck ──</span><span class="field-type" style="color:var(--text-muted);font-size:11px">0–30</span></div>
+          <div class="field-row"><span class="field-name">factCheckScore</span><span class="field-type">int</span></div>
+          <div class="field-row"><span class="field-name">sourceReputationScore</span><span class="field-type">int (0–12)</span></div>
+          <div class="field-row"><span class="field-name">sourceDomain</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">sourceReputationTier</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">claimBusterScore</span><span class="field-type">int (0–10)</span></div>
+          <div class="field-row"><span class="field-name">rssCheckScore</span><span class="field-type">int (0–8)</span></div>
+          <div class="field-row"><span class="field-name">rssMatchedTitle</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">factCheckClaims <span class="fk">embed</span></span><span class="field-type"><span class="generic">List&lt;FactCheckClaim&gt;</span></span></div>
+          <div class="field-row"><span class="field-name">factCheckVerdict</span><span class="field-type">String</span></div>
+          <div class="field-row" style="background:rgba(88,166,255,.03)"><span class="field-name" style="color:var(--text-muted);font-size:11px">── Додаткові метрики ──</span><span class="field-type" style="color:var(--text-muted);font-size:11px">non-score</span></div>
+          <div class="field-row"><span class="field-name">sentimentScore</span><span class="field-type">double (−1..+1)</span></div>
+          <div class="field-row"><span class="field-name">sentimentLabel</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">readabilityScore</span><span class="field-type">double (0–100)</span></div>
+          <div class="field-row"><span class="field-name">readabilityLevel</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">wordCount</span><span class="field-type">int</span></div>
+          <div class="field-row"><span class="field-name">analyzedByUsername <span class="fk">FK→users</span></span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">isManual</span><span class="field-type">boolean</span></div>
+          <div class="field-row"><span class="field-name">reasoning</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">analyzedAt</span><span class="field-type">LocalDateTime</span></div>
+        </div>
+      </div>
+
+      <!-- FactCheckClaim -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(63,185,80,.08)">
+          <span>FactCheckClaim</span>
+          <span class="entity-badge entity-badge--embed">Embedded</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">claimText</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">rating</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">publisher</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">url</span><span class="field-type">String</span></div>
+        </div>
+      </div>
+
+      <!-- Role -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(188,140,255,.08)">
+          <span>Role</span>
+          <span class="entity-badge entity-badge--enum">Enum</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">USER</span><span class="field-type">—</span></div>
+          <div class="field-row"><span class="field-name">ADMIN</span><span class="field-type">—</span></div>
+        </div>
+      </div>
+
+      <!-- NewsSourceType -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(188,140,255,.08)">
+          <span>NewsSourceType</span>
+          <span class="entity-badge entity-badge--enum">Enum</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">NEWS_API</span><span class="field-type">—</span></div>
+          <div class="field-row"><span class="field-name">GUARDIAN</span><span class="field-type">—</span></div>
+          <div class="field-row"><span class="field-name">GNEWS</span><span class="field-type">—</span></div>
+          <div class="field-row"><span class="field-name">REDDIT</span><span class="field-type">—</span></div>
+          <div class="field-row"><span class="field-name">DATASET</span><span class="field-type">—</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Panel: Relations ── -->
+  <div class="panel" id="tab-relations">
+    <div class="diagram-wrap" style="padding:0">
+      <table class="rel-table">
+        <thead>
+          <tr>
+            <th>Від</th>
+            <th>Тип зв'язку</th>
+            <th>До</th>
+            <th>Поле</th>
+            <th>Опис</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rel-from">User</span></td>
+            <td><span class="rel-type-ref">Reference (soft)</span></td>
+            <td><span class="rel-to">NewsItem</span></td>
+            <td><code>favoriteNewsIds: Set&lt;String&gt;</code></td>
+            <td class="rel-label">Many-to-many через embedded Set. Один User → багато улюблених NewsItem.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">NewsItem</span></td>
+            <td><span class="rel-type-ref">Reference (1:1)</span></td>
+            <td><span class="rel-to">NewsAnalysis</span></td>
+            <td><code>newsItemId: String (UK)</code></td>
+            <td class="rel-label">Кожна NewsItem може мати один NewsAnalysis. newsItemId — унікальний індекс.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">User</span></td>
+            <td><span class="rel-type-soft">Reference (soft)</span></td>
+            <td><span class="rel-to">NewsAnalysis</span></td>
+            <td><code>analyzedByUsername: String</code></td>
+            <td class="rel-label">Ім'я користувача який запустив ручний аналіз. Null для авто-batch.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">NewsAnalysis</span></td>
+            <td><span class="rel-type-embed">Embedded (1:N)</span></td>
+            <td><span class="rel-to">FactCheckClaim</span></td>
+            <td><code>factCheckClaims: List&lt;FactCheckClaim&gt;</code></td>
+            <td class="rel-label">Список claims зберігається всередині документа NewsAnalysis (без окремої колекції).</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">User</span></td>
+            <td><span class="rel-type-embed">Embedded (enum)</span></td>
+            <td><span class="rel-to">Role</span></td>
+            <td><code>role: Role</code></td>
+            <td class="rel-label">Роль зберігається як рядок у документі User. USER | ADMIN.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">NewsItem</span></td>
+            <td><span class="rel-type-embed">Embedded (enum)</span></td>
+            <td><span class="rel-to">NewsSourceType</span></td>
+            <td><code>sourceType: NewsSourceType</code></td>
+            <td class="rel-label">Джерело статті. NEWS_API | GUARDIAN | GNEWS | REDDIT | DATASET.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">NewsApiArticle</span> / <span class="rel-from">GuardianArticle</span> / <span class="rel-from">GNewsArticle</span> / <span class="rel-from">RedditPost</span></td>
+            <td><span class="rel-type-soft">Converted to</span></td>
+            <td><span class="rel-to">NewsItem</span></td>
+            <td>—</td>
+            <td class="rel-label">API-DTO перетворюються сервісами (NewsApiService, GuardianService…) в єдину модель NewsItem.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Panel: Mermaid diagram ── -->
+  <div class="panel" id="tab-diagram">
+    <div class="diagram-wrap">
+      <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': {
+  'background': '#161b22',
+  'primaryColor': '#21262d',
+  'primaryTextColor': '#e6edf3',
+  'primaryBorderColor': '#30363d',
+  'lineColor': '#58a6ff',
+  'secondaryColor': '#0d1117',
+  'tertiaryColor': '#30363d',
+  'edgeLabelBackground': '#161b22',
+  'classText': '#e6edf3'
+}}}%%
+classDiagram
+  direction LR
+
+  class User {
+    <<Document · users>>
+    +String id 🔑
+    +String username 🔒
+    +String email 🔒
+    +String password
+    +Role role
+    +Set~String~ favoriteNewsIds
+    +LocalDateTime createdAt
+    +LocalDateTime updatedAt
+  }
+
+  class NewsItem {
+    <<Document · news>>
+    +String id 🔑
+    +String title
+    +String description
+    +String fullContent
+    +String url 🔒
+    +String imageUrl
+    +LocalDateTime publishedAt
+    +String source
+    +String category
+    +NewsSourceType sourceType
+    +String datasetLabel
+  }
+
+  class NewsAnalysis {
+    <<Document · news_analysis>>
+    +String id 🔑
+    +String newsItemId 🔒
+    +int credibilityScore
+    +int linguisticScore
+    +int crossSourceScore
+    +int factCheckScore
+    +double sentimentScore
+    +String sentimentLabel
+    +double readabilityScore
+    +String readabilityLevel
+    +int wordCount
+    +String sourceReputationTier
+    +String analyzedByUsername
+    +boolean isManual
+    +LocalDateTime analyzedAt
+  }
+
+  class FactCheckClaim {
+    <<Embedded>>
+    +String claimText
+    +String rating
+    +String publisher
+    +String url
+  }
+
+  class Role {
+    <<enumeration>>
+    USER
+    ADMIN
+  }
+
+  class NewsSourceType {
+    <<enumeration>>
+    NEWS_API
+    GUARDIAN
+    GNEWS
+    REDDIT
+    DATASET
+  }
+
+  User --> Role : role
+  User "0..*" ..> "0..*" NewsItem : favoriteNewsIds
+  NewsItem "1" --> "0..1" NewsAnalysis : newsItemId
+  NewsItem --> NewsSourceType : sourceType
+  NewsAnalysis "1" *-- "0..*" FactCheckClaim : factCheckClaims
+  User "1" ..> "0..*" NewsAnalysis : analyzedByUsername
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Panel: API DTOs ── -->
+  <div class="panel" id="tab-api-dto">
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px">
+      Зовнішні DTO — не зберігаються в MongoDB. Сервіси конвертують їх у <code style="color:var(--accent)">NewsItem</code>.
+    </p>
+    <div class="entity-grid">
+
+      <!-- NewsApiArticle -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>NewsApiArticle</span>
+          <span class="entity-badge entity-badge--dto">DTO · NewsAPI</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">source</span><span class="field-type">NewsApiSource</span></div>
+          <div class="field-row"><span class="field-name">author</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">description</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">url</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">urlToImage</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">publishedAt</span><span class="field-type">String (ISO-8601)</span></div>
+          <div class="field-row"><span class="field-name">content</span><span class="field-type">String</span></div>
+        </div>
+      </div>
+
+      <!-- NewsApiSource -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>NewsApiSource</span>
+          <span class="entity-badge entity-badge--dto">DTO · NewsAPI</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">name</span><span class="field-type">String</span></div>
+        </div>
+      </div>
+
+      <!-- GuardianArticle -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>GuardianArticle</span>
+          <span class="entity-badge entity-badge--dto">DTO · Guardian</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">sectionId</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">sectionName</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">webPublicationDate</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">webTitle</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">webUrl</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">fields</span><span class="field-type">GuardianArticleFields</span></div>
+        </div>
+      </div>
+
+      <!-- GuardianArticleFields -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>GuardianArticleFields</span>
+          <span class="entity-badge entity-badge--dto">DTO · Guardian</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">trailText</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">bodyText</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">thumbnail</span><span class="field-type">String</span></div>
+        </div>
+      </div>
+
+      <!-- GNewsArticle -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>GNewsArticle</span>
+          <span class="entity-badge entity-badge--dto">DTO · GNews</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">description</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">content</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">url</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">image</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">publishedAt</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">source</span><span class="field-type">GNewsSource</span></div>
+        </div>
+      </div>
+
+      <!-- GNewsSource -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>GNewsSource</span>
+          <span class="entity-badge entity-badge--dto">DTO · GNews</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">name</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">url</span><span class="field-type">String</span></div>
+        </div>
+      </div>
+
+      <!-- RedditPost -->
+      <div class="entity-card">
+        <div class="entity-card__header" style="background:rgba(210,153,34,.08)">
+          <span>RedditPost</span>
+          <span class="entity-badge entity-badge--dto">DTO · Reddit</span>
+        </div>
+        <div class="entity-card__fields">
+          <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">url</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">domain</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">selftext</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">subreddit</span><span class="field-type">String</span></div>
+          <div class="field-row"><span class="field-name">createdUtc</span><span class="field-type">double (epoch)</span></div>
+          <div class="field-row"><span class="field-name">isSelf</span><span class="field-type">boolean</span></div>
+          <div class="field-row"><span class="field-name">score</span><span class="field-type">int</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background:        '#161b22',
+      primaryColor:      '#21262d',
+      primaryTextColor:  '#e6edf3',
+      primaryBorderColor:'#30363d',
+      lineColor:         '#58a6ff',
+      secondaryColor:    '#0d1117',
+    }
+  });
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+</body>
+</html>

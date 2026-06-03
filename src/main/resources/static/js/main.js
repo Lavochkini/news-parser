@@ -41,13 +41,16 @@ function renderNav() {
     const nav = document.getElementById('navUser');
     if (!nav) return;
     if (Auth.isLoggedIn()) {
+        const adminLink = Auth.getRole() === 'ADMIN'
+            ? `<a href="/admin" class="btn btn--ghost" style="color:#f87171">Адмін</a>` : '';
         nav.innerHTML = `
+            ${adminLink}
             <span class="navbar__username">${escHtml(Auth.getUsername())}</span>
-            <button class="btn btn--ghost" onclick="Auth.logout()">Logout</button>`;
+            <button class="btn btn--ghost" onclick="Auth.logout()">Вийти</button>`;
     } else {
         nav.innerHTML = `
-            <a href="/login"    class="btn btn--ghost">Login</a>
-            <a href="/register" class="btn btn--outline">Register</a>`;
+            <a href="/login"    class="btn btn--ghost">Увійти</a>
+            <a href="/register" class="btn btn--outline">Реєстрація</a>`;
     }
 }
 
@@ -244,9 +247,14 @@ function renderCards(articles) {
                 ${a.description ? `<p class="news-card__desc">${escHtml(a.description)}</p>` : ''}
                 <div class="news-card__footer">
                     <span class="news-card__source">${escHtml(a.source || '')}</span>
-                    <a class="news-card__link" href="${escHtml(a.url)}" target="_blank" onclick="event.stopPropagation()">
-                        Читати →
-                    </a>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <a class="news-card__link" href="/article/${a.id}" onclick="event.stopPropagation()">
+                            Детальніше
+                        </a>
+                        <a class="news-card__link" href="${escHtml(a.url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--text-muted);font-size:12px;">
+                            Джерело →
+                        </a>
+                    </div>
                 </div>
             </div>
         </article>`).join('');
@@ -437,6 +445,7 @@ function openModal(indexOrArticle) {
     document.getElementById('modalDate').textContent     = formatDate(article.publishedAt);
     document.getElementById('modalDesc').textContent     = article.description || '';
     document.getElementById('modalReadLink').href        = article.url || '#';
+    document.getElementById('modalDetailLink').href      = `/article/${article.id}`;
 
     const fullEl = document.getElementById('modalFullText');
     if (article.fullContent && article.fullContent !== article.description) {
@@ -487,7 +496,7 @@ function updateStarBtn() {
 
 function toggleFavorite() {
     if (!Auth.isLoggedIn()) {
-        window.location.href = '/login';
+        showAuthModal('analyze');
         return;
     }
     if (!currentArticle || !currentArticle.id) return;
@@ -512,16 +521,51 @@ function toggleFavorite() {
     .finally(() => { btn.disabled = false; });
 }
 
+/* ── Layer sub-method toggling ── */
+function toggleLayerSubs(layer, enabled) {
+    const wrap = document.getElementById(`subs-${layer}`);
+    if (!wrap) return;
+    wrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.disabled = !enabled;
+        cb.parentElement.style.opacity = enabled ? '1' : '0.4';
+    });
+}
+
 /* ── Manual Analysis ── */
 function runManualAnalysis() {
     if (!currentArticle) return;
 
+    if (!Auth.isLoggedIn()) {
+        showAuthModal('analyze');
+        return;
+    }
+
+    const cb = id => { const el = document.getElementById(id); return el ? el.checked : true; };
     const options = {
-        runLinguistic:   document.getElementById('optLinguistic').checked,
-        runCrossSource:  document.getElementById('optCrossSource').checked,
-        runFactCheck:    document.getElementById('optFactCheck').checked,
-        runSentiment:    document.getElementById('optSentiment').checked,
-        runReadability:  document.getElementById('optReadability').checked,
+        runLinguistic:  cb('optLinguistic'),
+        linguistic: {
+            hedgeWords:            cb('subHedge'),
+            clickbait:             cb('subClickbait'),
+            emotional:             cb('subEmotional'),
+            manipulation:          cb('subManipulation'),
+            conspiracy:            cb('subConspiracy'),
+            anonymousSources:      cb('subAnonSources'),
+            citationDensity:       cb('subCitationDensity'),
+            headlineConsistency:   cb('subHeadlineConsistency'),
+            betteridge:            cb('subBetteridge'),
+        },
+        runCrossSource: cb('optCrossSource'),
+        runFactCheck:   cb('optFactCheck'),
+        factCheck: {
+            sourceReputation:    cb('subSourceRep'),
+            claimBuster:         cb('subClaimBuster'),
+            rssCheck:            cb('subRss'),
+            extendedUrlAnalysis: cb('subExtendedUrl'),
+            recycledNews:        cb('subRecycledNews'),
+        },
+        runSentiment:   cb('optSentiment'),
+        runReadability: cb('optReadability'),
+        runWikipedia:   cb('optWikipedia'),
     };
 
     const btn = document.getElementById('analyzeBtn');
@@ -555,6 +599,17 @@ function runManualAnalysis() {
 function renderAnalysisResults(r) {
     const container = document.getElementById('analysisResults');
     container.style.display = 'block';
+
+    // Language disclaimer
+    const disclaimer = document.getElementById('langDisclaimer');
+    if (disclaimer) {
+        if (r.languageNote) {
+            disclaimer.textContent = r.languageNote;
+            disclaimer.style.display = 'flex';
+        } else {
+            disclaimer.style.display = 'none';
+        }
+    }
 
     // Score circle
     const score = r.credibilityScore ?? 0;
@@ -624,8 +679,41 @@ function readabilityUk(l) {
     return { VERY_EASY: 'Дуже легко', EASY: 'Легко', STANDARD: 'Стандарт', DIFFICULT: 'Складно', VERY_DIFFICULT: 'Дуже складно' }[l] || l;
 }
 
+/* ── Auth modal ── */
+const AUTH_MESSAGES = {
+    analyze:    'Щоб аналізувати новини на достовірність, будь ласка, увійдіть або зареєструйтесь.',
+    dashboard:  'Дашборд доступний лише для зареєстрованих користувачів.',
+    addNews:    'Додавання новин доступне лише для зареєстрованих користувачів.',
+    cabinet:    'Особистий кабінет доступний лише для зареєстрованих користувачів.',
+};
+
+function showAuthModal(msgKey = 'analyze') {
+    document.getElementById('authModalMsg').textContent = AUTH_MESSAGES[msgKey] || AUTH_MESSAGES.analyze;
+    document.getElementById('authModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeAuthModal() {
+    document.getElementById('authModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+/* Перехоплює кліки на захищені nav-посилання для гостей */
+function guardedNav(event, link) {
+    if (Auth.isLoggedIn()) return; // залогінений — переходимо нормально
+    event.preventDefault();
+    const href = link.getAttribute('href');
+    const key = href === '/dashboard'    ? 'dashboard'
+              : href === '/add-news'     ? 'addNews'
+              : href === '/my-dashboard' ? 'cabinet'
+              : 'analyze';
+    showAuthModal(key);
+}
+
 window.openModal        = openModal;
 window.closeModal       = closeModal;
+window.closeAuthModal   = closeAuthModal;
+window.guardedNav       = guardedNav;
 window.toggleFavorite   = toggleFavorite;
 window.runManualAnalysis= runManualAnalysis;
 window.modalOverlayClick= modalOverlayClick;
+window.toggleLayerSubs  = toggleLayerSubs;

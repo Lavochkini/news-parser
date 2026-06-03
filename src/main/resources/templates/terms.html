@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fistserious — Умови використання</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .terms-page { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+        .terms-back  { display: inline-flex; align-items: center; gap: 6px; color: #58a6ff; text-decoration: none; font-size: 14px; margin-bottom: 32px; }
+        .terms-back:hover { text-decoration: underline; }
+        .terms-logo  { font-size: 22px; font-weight: 800; color: #58a6ff; letter-spacing: -0.5px; margin-bottom: 6px; }
+        .terms-title { font-size: 28px; font-weight: 700; color: #e6edf3; margin: 0 0 6px; }
+        .terms-date  { font-size: 13px; color: #8b949e; margin-bottom: 36px; }
+        .terms-toc   { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 18px 22px; margin-bottom: 40px; }
+        .terms-toc__title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #8b949e; margin-bottom: 10px; }
+        .terms-toc a { display: block; color: #58a6ff; text-decoration: none; font-size: 14px; padding: 3px 0; }
+        .terms-toc a:hover { text-decoration: underline; }
+        h2 { font-size: 20px; font-weight: 700; color: #e6edf3; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid #21262d; }
+        h2:first-of-type { border-top: none; margin-top: 0; }
+        h3 { font-size: 15px; font-weight: 600; color: #c9d1d9; margin: 20px 0 8px; }
+        p  { font-size: 14px; color: #8b949e; line-height: 1.75; margin: 0 0 12px; }
+        ul { padding-left: 20px; margin: 0 0 12px; }
+        ul li { font-size: 14px; color: #8b949e; line-height: 1.75; margin-bottom: 4px; }
+        .terms-highlight { background: #161b22; border-left: 3px solid #58a6ff; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 16px; }
+        .terms-highlight p { margin: 0; color: #c9d1d9; }
+        .terms-warn { background: rgba(210,153,34,.08); border-left: 3px solid #d29922; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 16px; }
+        .terms-warn p { margin: 0; color: #d29922; }
+        .terms-footer { margin-top: 56px; padding-top: 24px; border-top: 1px solid #21262d; display: flex; gap: 16px; flex-wrap: wrap; }
+        .terms-footer a { color: #58a6ff; text-decoration: none; font-size: 14px; }
+        .terms-footer a:hover { text-decoration: underline; }
+        strong { color: #e6edf3; }
+        a { color: #58a6ff; }
+    </style>
+</head>
+<body>
+
+<div class="terms-page">
+
+    <a href="javascript:history.back()" class="terms-back">← Повернутись</a>
+
+    <div class="terms-logo">Fistserious</div>
+    <h1 class="terms-title">Умови використання та Політика конфіденційності</h1>
+    <p class="terms-date">Чинна редакція: 1 червня 2025 р.</p>
+
+    <!-- Table of contents -->
+    <div class="terms-toc">
+        <div class="terms-toc__title">Зміст</div>
+        <a href="#about">1. Про сервіс</a>
+        <a href="#usage">2. Умови використання</a>
+        <a href="#prohibited">3. Заборонений контент</a>
+        <a href="#disclaimer">4. Відмова від відповідальності</a>
+        <a href="#accounts">5. Облікові записи</a>
+        <a href="#privacy">6. Політика конфіденційності</a>
+        <a href="#data">7. Дані та їх обробка</a>
+        <a href="#contact">8. Контакти</a>
+    </div>
+
+    <!-- 1 -->
+    <h2 id="about">1. Про сервіс</h2>
+    <p>
+        <strong>Fistserious</strong> — це платформа для автоматизованого аналізу достовірності новин.
+        Сервіс застосовує алгоритми лінгвістичного аналізу, крос-перевірки джерел і факт-чекінгу
+        для оцінки матеріалів на предмет ознак маніпуляції, дезінформації та клікбейту.
+    </p>
+    <p>
+        Сервіс розроблено як навчальний проєкт і не є комерційним продуктом.
+        Результати аналізу носять виключно <strong>інформаційний характер</strong> і не можуть
+        використовуватись як підстава для юридичних, фінансових або будь-яких інших рішень.
+    </p>
+
+    <!-- 2 -->
+    <h2 id="usage">2. Умови використання</h2>
+    <p>Використовуючи сервіс, ви погоджуєтесь:</p>
+    <ul>
+        <li>Надавати достовірну інформацію при реєстрації (дійсний email, реальний username).</li>
+        <li>Не передавати доступ до облікового запису третім особам.</li>
+        <li>Використовувати результати аналізу відповідально, розуміючи їх алгоритмічну природу.</li>
+        <li>Не намагатись обійти механізми безпеки або навантажити сервіс штучним трафіком.</li>
+        <li>Дотримуватись чинного законодавства України при роботі з контентом.</li>
+    </ul>
+
+    <!-- 3 -->
+    <h2 id="prohibited">3. Заборонений контент</h2>
+    <p>Забороняється додавати до сервісу матеріали, що:</p>
+    <ul>
+        <li>Містять заклики до насилля, ненависті або дискримінації.</li>
+        <li>Порушують авторські права третіх осіб.</li>
+        <li>Є свідомою дезінформацією, що завдає шкоди особам або організаціям.</li>
+        <li>Містять персональні дані третіх осіб без їхньої згоди.</li>
+        <li>Порушують законодавство України або міжнародні норми права.</li>
+    </ul>
+
+    <!-- 4 -->
+    <h2 id="disclaimer">4. Відмова від відповідальності</h2>
+    <div class="terms-warn">
+        <p>
+            ⚠ Алгоритмічний аналіз <strong>не замінює</strong> професійну журналістську верифікацію.
+            Оцінки достовірності є автоматизованими і можуть містити похибки.
+            Fistserious не несе відповідальності за рішення, прийняті на підставі результатів аналізу.
+        </p>
+    </div>
+    <ul>
+        <li>Сервіс надається «як є» без гарантій безперервної роботи або абсолютної точності.</li>
+        <li>Алгоритми оптимізовані для англійської та української мов; точність для інших мов знижена.</li>
+        <li>Зовнішні API (NewsAPI, Guardian, ClaimBuster тощо) можуть бути недоступні — це впливає на окремі шари аналізу.</li>
+        <li>Адміністрація залишає за собою право змінювати алгоритми без попереднього повідомлення.</li>
+    </ul>
+
+    <!-- 5 -->
+    <h2 id="accounts">5. Облікові записи</h2>
+    <p>
+        Обліковий запис може бути заблокований або видалений у разі порушення цих умов.
+        Ви маєте право в будь-який момент видалити свій акаунт і всі пов'язані дані, звернувшись до адміністрації.
+    </p>
+    <p>
+        Паролі зберігаються у хешованому вигляді. Адміністрація <strong>не має доступу</strong> до вашого пароля у відкритому вигляді.
+    </p>
+
+    <!-- 6 -->
+    <h2 id="privacy">6. Політика конфіденційності</h2>
+    <div class="terms-highlight">
+        <p>
+            Fistserious збирає мінімально необхідний обсяг даних для роботи сервісу.
+            Ми не передаємо ваші особисті дані третім особам і не використовуємо їх у рекламних цілях.
+        </p>
+    </div>
+    <h3>Які дані ми збираємо</h3>
+    <ul>
+        <li><strong>Email</strong> — для автентифікації та відновлення доступу.</li>
+        <li><strong>Username</strong> — публічне ім'я у системі.</li>
+        <li><strong>Результати аналізу</strong> — зберігаються для відображення в особистому кабінеті.</li>
+        <li><strong>Додані новини</strong> — матеріали, що ви завантажуєте вручну.</li>
+        <li><strong>Обрані новини (favorites)</strong> — список статей, відмічених вами.</li>
+    </ul>
+    <h3>Чого ми не збираємо</h3>
+    <ul>
+        <li>Ми не збираємо cookies для відстеження або рекламних цілей.</li>
+        <li>Ми не використовуємо сторонні трекери (Google Analytics тощо).</li>
+        <li>Ми не зберігаємо IP-адреси користувачів у прив'язці до профілю.</li>
+    </ul>
+
+    <!-- 7 -->
+    <h2 id="data">7. Дані та їх обробка</h2>
+    <h3>Зберігання</h3>
+    <p>
+        Дані зберігаються в базі MongoDB на сервері проєкту.
+        Доступ до бази обмежений і захищений паролем.
+    </p>
+    <h3>Термін зберігання</h3>
+    <p>
+        Дані зберігаються протягом усього часу існування вашого облікового запису.
+        Після видалення акаунту всі пов'язані дані видаляються протягом 30 днів.
+    </p>
+    <h3>Треті сторони</h3>
+    <p>
+        Для аналізу сервіс звертається до зовнішніх API (NewsAPI, The Guardian, GNews, Wikipedia).
+        Ці запити містять лише пошукові ключові слова з заголовків статей — без ваших персональних даних.
+    </p>
+
+    <!-- 8 -->
+    <h2 id="contact">8. Контакти</h2>
+    <p>
+        З питань конфіденційності, видалення акаунту або порушень умов використання
+        звертайтесь до адміністрації через розділ «Адмін-панель» або напряму за адресою проєкту.
+    </p>
+    <p>
+        Ці умови можуть оновлюватись. Актуальна версія завжди доступна за посиланням
+        <a href="/terms">/terms</a>.
+    </p>
+
+    <div class="terms-footer">
+        <a href="/register">← Повернутись до реєстрації</a>
+        <a href="/login">← Повернутись до входу</a>
+        <a href="/main">Головна сторінка</a>
+    </div>
+
+</div>
+
+</body>
+</html>

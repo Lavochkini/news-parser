@@ -18,6 +18,11 @@ public class AnalysisController {
     private final UserRepository userRepository;
     private final NewsAnalysisRepository analysisRepository;
 
+    @GetMapping("/{newsItemId}/check")
+    public ResponseEntity<Boolean> checkExists(@PathVariable String newsItemId) {
+        return ResponseEntity.ok(analysisRepository.existsByNewsItemId(newsItemId));
+    }
+
     @GetMapping("/{newsItemId}")
     public ResponseEntity<NewsAnalysis> getOrAnalyze(@PathVariable String newsItemId) {
         try {
@@ -53,7 +58,6 @@ public class AnalysisController {
             @PathVariable String newsItemId,
             @RequestBody AnalysisOptions options,
             Authentication auth) {
-        // auth.getName() = email; резолвимо в username
         String username = null;
         if (auth != null) {
             username = userRepository.findByEmail(auth.getName())

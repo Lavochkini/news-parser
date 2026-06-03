@@ -19,9 +19,16 @@ public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
+    @GetMapping("/check-username")
+    public ResponseEntity<Map<String, Boolean>> checkUsername(@RequestParam String username) {
+        boolean taken = userService.ifUserExistByUsername(username.trim());
+        return ResponseEntity.ok(Map.of("taken", taken));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String email    = body.get("email");
+        // Підтримуємо як "email", так і "login" (email або username)
+        String email    = body.getOrDefault("login", body.get("email"));
         String password = body.get("password");
 
         return userService.login(email, password)

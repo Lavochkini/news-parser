@@ -22,6 +22,10 @@ const COLORS = {
    INIT
 ═══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
+    if (!Auth.isLoggedIn()) {
+        window.location.href = '/login';
+        return;
+    }
     renderNav();
     loadStats();
 });
@@ -30,11 +34,16 @@ function renderNav() {
     const nav = document.getElementById('navUser');
     if (!nav) return;
     if (Auth.isLoggedIn()) {
-        nav.innerHTML = `<span class="navbar__username">${escHtml(Auth.getUsername())}</span>
-                         <button class="btn btn--ghost" onclick="Auth.logout()">Logout</button>`;
+        const adminLink = Auth.getRole() === 'ADMIN'
+            ? `<a href="/admin" class="btn btn--ghost" style="color:#f87171">Адмін</a>` : '';
+        nav.innerHTML = `
+            ${adminLink}
+            <span class="navbar__username">${escHtml(Auth.getUsername())}</span>
+            <button class="btn btn--ghost" onclick="Auth.logout()">Вийти</button>`;
     } else {
-        nav.innerHTML = `<a href="/login" class="btn btn--ghost">Login</a>
-                         <a href="/register" class="btn btn--outline">Register</a>`;
+        nav.innerHTML = `
+            <a href="/login"    class="btn btn--ghost">Увійти</a>
+            <a href="/register" class="btn btn--outline">Реєстрація</a>`;
     }
 }
 
@@ -42,7 +51,7 @@ function renderNav() {
    LOAD & RENDER
 ═══════════════════════════════════════ */
 function loadStats() {
-    fetch('/api/dashboard/stats')
+    fetch('/api/dashboard/stats', { headers: Auth.getHeaders() })
         .then(r => r.json())
         .then(stats => {
             renderCards(stats);
@@ -218,6 +227,211 @@ function renderHedgeWords(data) {
 }
 
 /* ═══════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════ */
+let _f1Chart   = null;
+let _distChart = null;
+
+function runBatchAnalysis() {
+    const btn    = document.getElementById('batchBtn');
+    const status = document.getElementById('batchStatus');
+    btn.disabled = true;
+    btn.textContent = '⚙ Аналізується…';
+    status.style.display = 'block';
+    status.textContent   = 'Запущено пакетний аналіз датасету, зачекайте…';
+
+    fetch('/api/dataset/analyze-batch?limit=200', { method: 'POST', headers: Auth.getHeaders() })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => {
+            status.textContent = '✓ ' + data.message;
+            btn.disabled = false;
+            btn.textContent = '⚙ Проаналізувати датасет';
+        })
+        .catch(err => {
+            status.textContent = 'Помилка: ' + err.message;
+            status.style.background = 'rgba(248,81,73,.08)';
+            status.style.color = 'var(--danger)';
+            btn.disabled = false;
+            btn.textContent = '⚙ Проаналізувати датасет';
+        });
+}
+
+function runValidation() {
+    const btn = document.getElementById('validateBtn');
+    btn.disabled = true;
+    btn.textContent = 'Обчислення…';
+    document.getElementById('validationLoading').style.display  = 'block';
+    document.getElementById('validationError').style.display    = 'none';
+    document.getElementById('validationContent').style.display  = 'none';
+
+    fetch('/api/dataset/validate', { headers: Auth.getHeaders() })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => {
+            document.getElementById('validationLoading').style.display = 'none';
+            btn.disabled = false;
+            btn.textContent = 'Оновити';
+            if (data.error) {
+                document.getElementById('validationError').style.display  = 'block';
+                document.getElementById('validationError').textContent    = data.error;
+                return;
+            }
+            renderValidation(data);
+        })
+        .catch(err => {
+            document.getElementById('validationLoading').style.display = 'none';
+            document.getElementById('validationError').style.display   = 'block';
+            document.getElementById('validationError').textContent     = 'Помилка: ' + err.message;
+            btn.disabled = false;
+            btn.textContent = 'Запустити валідацію';
+        });
+}
+
+function renderValidation(d) {
+    document.getElementById('validationContent').style.display = 'block';
+
+    // ── Stat cards ──
+    document.getElementById('valCards').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-card__value">${d.totalAnalyzed}</div>
+            <div class="stat-card__label">Проаналізовано датасетних статей</div>
+        </div>
+        <div class="stat-card" style="border-color:#3fb950;background:rgba(63,185,80,.05)">
+            <div class="stat-card__value" style="color:#3fb950">${d.totalTrue}</div>
+            <div class="stat-card__label">TRUE статей</div>
+        </div>
+        <div class="stat-card" style="border-color:#f85149;background:rgba(248,81,73,.05)">
+            <div class="stat-card__value" style="color:#f85149">${d.totalFake}</div>
+            <div class="stat-card__label">FAKE статей</div>
+        </div>
+        <div class="stat-card stat-card--accent">
+            <div class="stat-card__value">${d.avgScoreTrue}</div>
+            <div class="stat-card__label">Середній бал TRUE</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__value">${d.avgScoreFake}</div>
+            <div class="stat-card__label">Середній бал FAKE</div>
+        </div>`;
+
+    // ── Best threshold highlight ──
+    const b = d.bestThreshold;
+    document.getElementById('bestThresholdCard').innerHTML = `
+        <div style="background:rgba(88,166,255,.08);border:1px solid var(--accent);border-radius:12px;padding:18px 24px;display:flex;flex-wrap:wrap;gap:24px;align-items:center">
+            <div>
+                <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Оптимальний поріг (max F1)</div>
+                <div style="font-size:36px;font-weight:700;color:var(--accent)">${b.threshold}</div>
+            </div>
+            ${['f1','accuracy','precision','recall','specificity'].map(k => `
+            <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">${metricLabel(k)}</div>
+                <div style="font-size:22px;font-weight:700;color:${metricColor(b[k])}">${pct(b[k])}</div>
+            </div>`).join('')}
+        </div>`;
+
+    // ── Confusion matrix ──
+    document.getElementById('cmThresholdLabel').textContent = `(поріг = ${b.threshold})`;
+    document.getElementById('confusionMatrix').innerHTML = `
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;font-size:13px;margin-top:12px">
+            <div></div>
+            <div style="text-align:center;font-weight:600;color:#3fb950;padding:8px">Predicted TRUE</div>
+            <div style="text-align:center;font-weight:600;color:#f85149;padding:8px">Predicted FAKE</div>
+            <div style="font-weight:600;color:#3fb950;display:flex;align-items:center;padding:8px 12px">Actual TRUE</div>
+            <div style="background:rgba(63,185,80,.15);border:1px solid #3fb950;border-radius:8px;padding:18px;text-align:center">
+                <div style="font-size:32px;font-weight:700;color:#3fb950">${b.tp}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">TP</div>
+            </div>
+            <div style="background:rgba(248,81,73,.08);border:1px solid var(--border);border-radius:8px;padding:18px;text-align:center">
+                <div style="font-size:32px;font-weight:700;color:var(--text-muted)">${b.fn}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">FN</div>
+            </div>
+            <div style="font-weight:600;color:#f85149;display:flex;align-items:center;padding:8px 12px">Actual FAKE</div>
+            <div style="background:rgba(248,81,73,.08);border:1px solid var(--border);border-radius:8px;padding:18px;text-align:center">
+                <div style="font-size:32px;font-weight:700;color:var(--text-muted)">${b.fp}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">FP</div>
+            </div>
+            <div style="background:rgba(248,81,73,.15);border:1px solid #f85149;border-radius:8px;padding:18px;text-align:center">
+                <div style="font-size:32px;font-weight:700;color:#f85149">${b.tn}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">TN</div>
+            </div>
+        </div>`;
+
+    // ── Metrics table ──
+    document.getElementById('metricsTableBody').innerHTML = d.thresholdResults.map(r => `
+        <tr style="${r.threshold === b.threshold ? 'background:rgba(88,166,255,.08)' : ''}">
+            <td style="font-weight:${r.threshold === b.threshold ? '700' : '400'};color:${r.threshold === b.threshold ? 'var(--accent)' : 'inherit'}">
+                ${r.threshold}${r.threshold === b.threshold ? ' ★' : ''}
+            </td>
+            <td class="col-num" style="color:#3fb950">${r.tp}</td>
+            <td class="col-num" style="color:#3fb950">${r.tn}</td>
+            <td class="col-num" style="color:#f85149">${r.fp}</td>
+            <td class="col-num" style="color:#f85149">${r.fn}</td>
+            <td class="col-num" style="color:${metricColor(r.accuracy)}">${pct(r.accuracy)}</td>
+            <td class="col-num" style="color:${metricColor(r.precision)}">${pct(r.precision)}</td>
+            <td class="col-num" style="color:${metricColor(r.recall)}">${pct(r.recall)}</td>
+            <td class="col-num" style="font-weight:600;color:${metricColor(r.f1)}">${pct(r.f1)}</td>
+            <td class="col-num" style="color:${metricColor(r.specificity)}">${pct(r.specificity)}</td>
+        </tr>`).join('');
+
+    // ── F1 chart ──
+    if (_f1Chart) { _f1Chart.destroy(); _f1Chart = null; }
+    const thresholds = d.thresholdResults.map(r => r.threshold);
+    _f1Chart = new Chart(document.getElementById('f1Chart'), {
+        type: 'bar',
+        data: {
+            labels: thresholds,
+            datasets: [
+                {
+                    label: 'F1',
+                    data: d.thresholdResults.map(r => r.f1),
+                    backgroundColor: d.thresholdResults.map(r =>
+                        r.threshold === b.threshold ? COLORS.accent : 'rgba(88,166,255,.35)'),
+                    borderRadius: 6,
+                },
+                {
+                    label: 'Accuracy',
+                    data: d.thresholdResults.map(r => r.accuracy),
+                    backgroundColor: 'rgba(63,185,80,.35)',
+                    borderRadius: 6,
+                },
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true, max: 1, ticks: { callback: v => Math.round(v*100)+'%' } } }
+        }
+    });
+
+    // ── Distribution chart ──
+    if (_distChart) { _distChart.destroy(); _distChart = null; }
+    const dist = d.distribution;
+    _distChart = new Chart(document.getElementById('distChart'), {
+        type: 'bar',
+        data: {
+            labels: dist.labels,
+            datasets: [
+                { label: 'TRUE', data: dist.TRUE, backgroundColor: 'rgba(63,185,80,.6)',  borderRadius: 4 },
+                { label: 'FAKE', data: dist.FAKE, backgroundColor: 'rgba(248,81,73,.6)', borderRadius: 4 },
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+}
+
+function metricLabel(k) {
+    return { f1:'F1', accuracy:'Accuracy', precision:'Precision', recall:'Recall', specificity:'Specificity' }[k] || k;
+}
+function metricColor(v) {
+    if (v >= 0.8) return '#3fb950';
+    if (v >= 0.6) return '#d29922';
+    return '#f85149';
+}
+function pct(v) { return Math.round(v * 100) + '%'; }
+
+/* ═══════════════════════════════════════
    SEARCH
 ═══════════════════════════════════════ */
 let _searchPage = 0;
@@ -262,7 +476,7 @@ function runSearch(page = 0) {
     document.getElementById('searchEmpty').style.display    = 'none';
     document.getElementById('searchLoading').style.display  = 'block';
 
-    fetch('/api/dashboard/search?' + params)
+    fetch('/api/dashboard/search?' + params, { headers: Auth.getHeaders() })
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(data => renderSearchResults(data))
         .catch(err => {

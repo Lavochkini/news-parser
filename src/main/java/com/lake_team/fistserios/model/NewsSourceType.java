@@ -5,5 +5,6 @@ public enum NewsSourceType {
     GUARDIAN,
     GNEWS,
     REDDIT,
-    DATASET
+    DATASET,
+    MANUAL
 }
