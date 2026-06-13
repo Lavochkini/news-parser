@@ -158,12 +158,11 @@
 				</configuration>
 			</plugin>
 
-			<!-- Збірка jar (головний клас — JavaFxApp) -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>com.lake_team.fistserios.JavaFxApp</mainClass>
+					<mainClass>com.lake_team.fistserios.NewsParserApplication</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>
