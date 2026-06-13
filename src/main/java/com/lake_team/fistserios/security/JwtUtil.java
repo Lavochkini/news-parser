@@ -22,7 +22,7 @@ public class JwtUtil {
     private long expiration; // мілісекунди, напр. 86400000 = 24 год
 
     private SecretKey getKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
     }
 
     public String generateToken(User user) {
