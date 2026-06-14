@@ -32,47 +32,71 @@ public class RedditService {
             "news", "worldnews", "conspiracy"
     );
 
+    private static final int TARGET_TOTAL   = 200;
+    private static final int PER_PAGE_LIMIT = 100; // Reddit API maximum per request
+
     public List<NewsItem> fetchAndSaveAll() {
-        return SUBREDDITS.stream()
+        List<NewsItem> all = SUBREDDITS.stream()
                 .flatMap(sub -> fetchSubreddit(sub).stream())
                 .collect(Collectors.toList());
+        log.info("Reddit total saved: {}", all.size());
+        return all;
     }
 
     public List<NewsItem> fetchSubreddit(String subreddit) {
-        try {
-            String url = "https://www.reddit.com/r/" + subreddit + "/new.json?limit=50";
+        int perSubTarget = (int) Math.ceil((double) TARGET_TOTAL / SUBREDDITS.size());
+        return fetchSubredditPaged(subreddit, perSubTarget);
+    }
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", USER_AGENT);
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
+    private List<NewsItem> fetchSubredditPaged(String subreddit, int target) {
+        List<NewsItem> result = new java.util.ArrayList<>();
+        String after = null;
 
-            ResponseEntity<RedditListing> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, RedditListing.class);
+        while (result.size() < target) {
+            String url = "https://www.reddit.com/r/" + subreddit + "/new.json?limit=" + PER_PAGE_LIMIT
+                    + (after != null ? "&after=" + after : "");
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("User-Agent", USER_AGENT);
+                HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            if (response.getBody() == null || response.getBody().getData() == null) {
-                log.warn("Empty response from r/{}", subreddit);
-                return Collections.emptyList();
+                ResponseEntity<RedditListing> response = restTemplate.exchange(
+                        url, HttpMethod.GET, entity, RedditListing.class);
+
+                if (response.getBody() == null || response.getBody().getData() == null) {
+                    log.warn("Empty response from r/{}", subreddit);
+                    break;
+                }
+
+                var data     = response.getBody().getData();
+                var children = data.getChildren();
+                if (children == null || children.isEmpty()) break;
+
+                List<NewsItem> page = children.stream()
+                        .map(RedditChild::getData)
+                        .filter(p -> p != null && !p.isSelf())
+                        .filter(p -> p.getUrl() != null && p.getUrl().startsWith("http"))
+                        .filter(p -> p.getTitle() != null && !p.getTitle().isBlank())
+                        .map(p -> mapToNewsItem(p, subreddit))
+                        .map(this::saveIfNotExists)
+                        .collect(Collectors.toList());
+
+                result.addAll(page);
+                after = data.getAfter();
+                log.info("Reddit r/{}: page fetched {}, total so far {}", subreddit, page.size(), result.size());
+
+                if (after == null) break; // no more pages
+
+                try { Thread.sleep(1000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
+
+            } catch (Exception e) {
+                log.error("Error fetching r/{}: {}", subreddit, e.getMessage());
+                break;
             }
-
-            List<RedditChild> children = response.getBody().getData().getChildren();
-            if (children == null) return Collections.emptyList();
-
-            List<NewsItem> saved = children.stream()
-                    .map(RedditChild::getData)
-                    .filter(p -> p != null && !p.isSelf()) // тільки link-пости
-                    .filter(p -> p.getUrl() != null && p.getUrl().startsWith("http"))
-                    .filter(p -> p.getTitle() != null && !p.getTitle().isBlank())
-                    .map(p -> mapToNewsItem(p, subreddit))
-                    .map(this::saveIfNotExists)
-                    .collect(Collectors.toList());
-
-            log.info("Reddit r/{}: fetched {} articles", subreddit, saved.size());
-            return saved;
-
-        } catch (Exception e) {
-            log.error("Error fetching r/{}: {}", subreddit, e.getMessage());
-            return Collections.emptyList();
         }
+
+        log.info("Reddit r/{}: finished with {} articles", subreddit, result.size());
+        return result;
     }
 
     private NewsItem mapToNewsItem(com.lake_team.fistserios.model.reddit.RedditPost post,

@@ -17,5 +17,6 @@ public class RedditListing {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class RedditListingData {
         private List<RedditChild> children;
+        private String after; // pagination cursor
     }
 }
