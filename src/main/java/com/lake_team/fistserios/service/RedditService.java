@@ -27,7 +27,7 @@ public class RedditService {
     private final NewsRepository newsRepository;
     private final RestTemplate   restTemplate;
 
-    private static final String USER_AGENT = "NewsFeedApp/1.0 (thesis project)";
+    private static final String USER_AGENT = "web:com.lake_team.news-parser:1.0 (by /u/news_parser_bot)";
     private static final List<String> SUBREDDITS = List.of(
             "news", "worldnews", "conspiracy"
     );
