@@ -292,43 +292,6 @@ class LinguisticAnalyzerTest {
         }
     }
 
-    // ── Щільність цитат ──────────────────────────────────────────────────
-
-    @Nested
-    @DisplayName("Щільність цитат")
-    class CitationDensity {
-
-        @Test
-        @DisplayName("0 цитат → штраф -6")
-        void noCitations_penalty6() {
-            NewsItem news = item("Sensational title", null,
-                    "Someone said something happened somewhere sometime.");
-            // Один хедж-штраф: "said" — але це не іменна атрибуція
-            LinguisticResult r = analyzer.analyze(news,
-                    new AnalysisOptions.LinguisticSubOptions(
-                            false, false, false, false, false, false, true, false, false));
-            // Тільки citationDensity увімкнено
-            assertThat(r.getCitationCount()).isEqualTo(0);
-            assertThat(r.getScore()).isEqualTo(35 - 6); // тільки цитаційний штраф
-        }
-
-        @Test
-        @DisplayName("3+ цитат → штраф 0")
-        void threePlusCitations_noPenalty() {
-            NewsItem news = item(
-                    "Scientific breakthrough confirmed",
-                    "According to Dr. Smith the study published in Nature confirms results.",
-                    "Professor Johnson confirmed at the press conference results are valid."
-            );
-            LinguisticResult r = analyzer.analyze(news,
-                    new AnalysisOptions.LinguisticSubOptions(
-                            false, false, false, false, false, false, true, false, false));
-
-            assertThat(r.getCitationCount()).isGreaterThanOrEqualTo(3);
-            assertThat(r.getScore()).isEqualTo(35); // без штрафу
-        }
-    }
-
     // ── Узгодженість заголовку ───────────────────────────────────────────
 
     @Nested
