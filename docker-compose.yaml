@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: news-parser-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/newsdb
+      NEWS_API_KEY: 54575571950a45fd80da2daf158f4f09
+      NEWS_API_URL: https://newsapi.org/v2/top-headlines
+      JWT_SECRET: mq6jm85T8tEin3HqjuLwOdnbHd2txvNNwdxlrZZxROg=
+      GUARDIAN_API_KEY: 17d71754-bac6-4229-9077-7933b27f6213
+      GNEWS_API_KEY: 56d3f50e65ccf20686ed6855105cd5f7
+
+  mongo:
+    image: mongo:7
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
