@@ -31,11 +31,3 @@ jobs:
 
       - name: Run tests
         run: mvn test
-
-      - name: SonarCloud Scan
-        run: |
-          mvn -B verify sonar:sonar \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.projectKey=Lavochkini_news-parser \
-            -Dsonar.organization=lavochkini \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
