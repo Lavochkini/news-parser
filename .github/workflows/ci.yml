@@ -33,6 +33,6 @@ jobs:
         run: mvn test
 
       - name: SonarCloud Scan
-        run: |
-          mvn -B verify sonar:sonar \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify sonar:sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
